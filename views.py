@@ -1911,48 +1911,55 @@ def inwentura(request):
     #        data_direct.split()[0], '%Y.%m.%d').date()
     rolka = Rolka.objects.get(pk=pk)
     if rolka:
-        try:
-            if typ_inwentury == "INWENTURA":
-                created, log = Log.objects.get_or_create(rolka_id=rolka.pk,
-                                                         index_tkaniny=rolka.tkanina.index_sap,
-                                                         dlugosc_rolki=rolka.dlugosc,
-                                                         dlugosc_elementu=dlugosc,
-                                                         typ='INWENTURA')
-                #WAZNE - przy nastepnej inwenturze sprawdz, czy typ inwentury nie lapie literowki i czy wchodzi do
-                # warunku
+        #try:
+        if typ_inwentury == "INWENTURA":
+            created, log = Log.objects.get_or_create(rolka_id=rolka.pk,
+                                                     index_tkaniny=rolka.tkanina.index_sap,
+                                                     dlugosc_rolki=rolka.dlugosc,
+                                                     dlugosc_elementu=dlugosc,
+                                                     typ='INWENTURA')
+            #WAZNE - przy nastepnej inwenturze sprawdz, czy typ inwentury nie lapie literowki i czy wchodzi do
+            # warunku
 
-            else:
-                #Rolka_zliczana.objects.get_or_create(tkanina_id=rolka.tkanina.pk)
+        else:
+            #Rolka_zliczana.objects.get_or_create(tkanina_id=rolka.tkanina.pk)
+            try:
                 rolka_z = Rolka_zliczana.objects.get(pk=rolka.pk)
-                if rolka_z:
-                    rolka_z.dlugosc=dlugosc
-                    rolka_z.save()
-                else:
-                    rolka_z = Rolka_zliczana.objects.create(pk=rolka.pk,
-                                                       tkanina_id=rolka.tkanina.pk,
-                                                        status=rolka.status,
-                                                        data_dostawy=rolka.data_dostawy,
-                                                        lot=rolka.lot,
-                                                        nr_rolki=rolka.nr_rolki,
-                                                        dlugosc=dlugosc,
-                                                        szerokosc=rolka.szerokosc,
-                                                        dlugosc_poczatkowa=rolka.dlugosc_poczatkowa,
-                                                        barcode=rolka.barcode,
-                                                        nr_zamowienia=rolka.nr_zamowienia,
-                                                        zakonczona=rolka.zakonczona,
-                                                        wydrukowana=rolka.wydrukowana,
-                                                        do_usuniecia=rolka.do_usuniecia)
-            rolka.dlugosc = dlugosc
-            rolka.lot = lot
-            rolka.nr_rolki = nr_rolki
-            #rolka.data_dostawy = data_dostawy
-            rolka.szerokosc = szerokosc
-            rolka.nr_zamowienia = zamowienia
-            rolka.save()
-            return HttpResponse('Zapisano!')
-        except Exception as e:
-            ErrorLog.objects.create(error=e, post=request.POST, funkcja=request.get_full_path())
-            return HttpResponse("Niepoprawne dane")
+            except:
+                print("Roleczka {}".format(rolka))
+                print("tu jestem") 
+                rolka_z = Rolka_zliczana.objects.create(pk=rolka.pk,
+                                                   tkanina_id=rolka.tkanina.pk,
+                                                    status=rolka.status,
+                                                    data_dostawy=rolka.data_dostawy,
+                                                    lot=rolka.lot,
+                                                    nr_rolki=rolka.nr_rolki,
+                                                    dlugosc=dlugosc,
+                                                    szerokosc=rolka.szerokosc,
+                                                    dlugosc_poczatkowa=rolka.dlugosc_poczatkowa,
+                                                    barcode=rolka.barcode,
+                                                    nr_zamowienia=rolka.nr_zamowienia,
+                                                    zakonczona=rolka.zakonczona,
+                                                    wydrukowana=rolka.wydrukowana,
+                                                    do_usuniecia=rolka.do_usuniecia)
+        
+            
+            if rolka:
+                print(rolka_z)
+                   
+                rolka_z.dlugosc=dlugosc
+                rolka_z.save()
+        rolka.dlugosc = dlugosc
+        rolka.lot = lot
+        rolka.nr_rolki = nr_rolki
+        #rolka.data_dostawy = data_dostawy
+        rolka.szerokosc = szerokosc
+        rolka.nr_zamowienia = zamowienia
+        rolka.save()
+        return HttpResponse('Zapisano!')
+        #except Exception as e:
+        #    ErrorLog.objects.create(error=e, post=request.POST, funkcja=request.get_full_path())
+        #    return HttpResponse("Niepoprawne dane")
 
 @csrf_exempt
 def proponuj(request):
