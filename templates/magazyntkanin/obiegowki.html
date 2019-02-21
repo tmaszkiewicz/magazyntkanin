@@ -1,0 +1,22 @@
+{% extends "magazyntkanin/base_k.html" %}
+{% block body %}
+
+<div class="container">
+    
+    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+        <form action="{% url 'magazyntkanin:krojownia_obiegowki' %}" method="GET" role="form">
+            <legend>Wygeneruj obigówkę dla rolki</legend>
+        
+            <div class="form-group">
+                <label for="">ID rolki</label>
+                <input type="text" class="form-control" id="" name="rolka" placeholder="Wprowadź dane...">
+            </div>
+            <button type="submit" class="btn btn-primary">Submit</button>
+        </form>
+        <div class="errors text-center">{{error}}</div>
+        
+    </div>
+    
+</div>
+
+{% endblock body %}

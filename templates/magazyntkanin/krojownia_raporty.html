@@ -1,0 +1,57 @@
+{% extends "magazyntkanin/base_k.html" %}
+{% block body %}
+<div class="row" style="margin-top: 80px;">
+<div class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
+</div>
+<div class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
+<form action="{% url 'magazyntkanin:krojownia_raport' %}" method="GET" role="form">
+	<div class="form-group">
+		<label for="dziennik">Dziennik</label>
+		<input type="text" class="form-control" id="" placeholder="Dziennik" name="dziennik">
+		<label for="dziennik" style="margin-top:10px;">ID Tkaniny</label>
+		<input type="text" class="form-control" id="" placeholder="ID Tkaniny" name="rolka">
+	</div>
+	<button type="submit" class="btn btn-primary">Wyszukaj</button>
+</form>	
+</div>
+</div>
+{% if rolka %}
+	<h2 class="row text-center">{{ rolka.tkanina.nazwa }} - {{ rolka.dlugosc|floatformat:1 }} mb</h2>
+{% endif %}
+{% if dziennik %}
+	<h2 class="row text-center">Niezakonczonych wpisow - {{ dziennik }}</h2>
+{% endif %}
+<div class="row" style="margin-top: 80px;">
+<div class="col-xs-1 col-sm-1 col-md-1 col-lg-1" style="margin-top: 50px;">
+</div>
+<div class="col-xs-10 col-sm-10 col-md-10 col-lg-10">
+<table class="table table-hover">
+	<thead>
+		<th>Dziennik</th>
+		<th>ID Rolki</th>
+		<th>Tkanina</th>
+		<th>Karta FGK</th>
+		<th>Dl.rolki</th>
+		<th>Dl.wpisu</th>
+		<th>Typ</th>
+		<th>Data</th>
+	</thead>
+	<tbody>
+		{% for each in wpisy %}
+		<tr>
+			<td><a href="/krojownia/raporty/?dziennik={{ each.dziennik_nr }}&rolka=">{{ each.dziennik_nr }}</a></td>
+			<td><a href="/krojownia/raporty/?dziennik=&rolka={{ each.rolka_id }}">{{ each.rolka_id }}</a></td>
+			<td>{{ each.index_tkaniny }}</td>			
+			<td>{{ each.nr_fgk }}</td>
+			<td>{{ each.dlugosc_rolki|floatformat:1 }} mb</td>
+			<td>{{ each.dlugosc_elementu|floatformat:1 }} mb</td>
+			<td>{{ each.typ }}</td>
+			<td>{{ each.timestamp }}</td>
+		</tr>			
+		{% endfor %}
+	</tbody>
+</table>
+</div>
+	
+</div>
+{% endblock body %}

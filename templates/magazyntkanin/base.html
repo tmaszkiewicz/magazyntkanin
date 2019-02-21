@@ -1,0 +1,135 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Wyszukaj dziennik</title>
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="{% static '/css/bootstrap.min.css' %}">
+    <link rel="stylesheet" href="{% static '/css/fonts.css' %}">
+    <link rel="stylesheet" href="{% static 'bootstrap/css/bootstrap.min.css' %}">
+    <link rel="stylesheet" href="{% static 'css/Navigation-Clean1.css' %}">
+    <link rel="stylesheet" href="{% static 'css/Newsletter-Subscription-Form.css' %}">
+    <link rel="stylesheet" href="{% static 'css/styles.css' %}">
+    <style type="text/css">
+    th {
+        text-align: center;
+    }
+
+    tr {
+        text-align: center;
+        vertical-align: middle;
+    }
+    
+    td {
+        vertical-align: inherit;
+    }
+
+    .errors {
+        text-align: center;
+        color: red;
+    }
+    </style>
+    {% block css %}
+    	
+    {% endblock css %}
+</head>
+<body>    
+    {% block nav %}
+        {% if dzial == 'krojownia' %}
+        <nav class="navbar navbar-default navigation-clean">
+            <div class="container">
+                <div class="navbar-header"><a class="navbar-brand" href="{% url 'magazyntkanin:krojownia_index' %}" style="font-family:Condiment, cursive;font-size:56px;">Krojownia</a>
+                    <button class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navcol-1"><span class="sr-only">Toggle navigation</span><span class="icon-bar"></span><span class="icon-bar"></span><span class="icon-bar"></span></button>
+                </div>
+                <div class="collapse navbar-collapse" id="navcol-1">
+                    <ul class="nav navbar-nav navbar-right">
+                        <li {% if request.resolver_match.url_name == status_dziennika %}class='active'{% endif %} role="presentation"><a href="{% url 'magazyntkanin:krojownia_status' %}" style="font-family:'Alegreya SC', serif;font-size:20px;">Status dziennika</a></li>
+                        <li {% if request.resolver_match.url_name == paczki %}class='active'{% endif %} role="presentation"><a href="{% url 'magazyntkanin:krojownia_paczki' %}" style="font-family:'Alegreya SC', serif;font-size:20px;">Wyszukaj paczki</a></li>
+                        <li {% if request.resolver_match.url_name == obiegowki %}class='active'{% endif %} role="presentation"><a href="{% url 'magazyntkanin:krojownia_obiegowki' %}" style="font-family:'Alegreya SC', serif;font-size:20px;">Obiegówki</a></li>
+                        <li {% if request.resolver_match.url_name == edytuj %}class='active'{% endif %} role="presentation"><a href="{% url 'magazyntkanin:krojowania_edycja' %}" style="font-family:'Alegreya SC', serif;font-size:20px;">Edytuj rolke</a></li>
+                        <li role="presentation"><a href="{% url 'magazyntkanin:krojownia_raport' %}" style="font-family:'Alegreya SC', serif;font-size:20px;">Raporty </a></li>
+                    </ul>
+                </div>
+            </div>
+        </nav>                           
+        {% else %}            
+        <nav class="navbar navbar-default navigation-clean">
+            <div class="container">
+                <div class="navbar-header"><a class="navbar-brand" href="{% url 'magazyntkanin:magazyn_index' %}" style="font-family:Condiment, cursive;font-size:48px;">Magazyn Tkanin</a>
+                    <button class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navcol-1"><span class="sr-only">Toggle navigation</span><span class="icon-bar"></span><span class="icon-bar"></span><span class="icon-bar"></span></button>
+                </div>
+                <div class="collapse navbar-collapse" id="navcol-1">
+                    <ul class="nav navbar-nav navbar-right">
+                        <li {% if request.resolver_match.url_name == podaj_dzienniki %}class='active'{% endif %} role="presentation"><a href="{% url 'magazyntkanin:podaj_dzienniki' %}" style="font-family:'Alegreya SC', serif;font-size:20px;">Status dziennika</a></li>                    
+                        <li class="dropdown">
+                                <a class="dropdown-toggle" data-toggle="dropdown" href="#" style="font-family:'Alegreya SC', serif;font-size:20px;">Generatory</a>
+                                <span class="caret"></span></a>
+                                <ul class="dropdown-menu">
+                                    <li role="generator_tkanin"><a href="{% url 'magazyntkanin:generator' %}">Generator tkanin</a></li>
+                                    <li role="generator_szablonow"><a href="{% url 'magazyntkanin:szablon_a4'%}">Szablon tkanin A4</a></li>
+                                </ul>
+                            </li>
+                        <li class="dropdown">
+                            <a class="dropdown-toggle" data-toggle="dropdown" href="#" style="font-family:'Alegreya SC', serif;font-size:20px;">Wyszukiwanie</a>
+                            <span class="caret"></span></a>
+                            <ul class="dropdown-menu">
+                                <li role="generator_tkanin"><a href="{% url 'magazyntkanin:raport' %}">Tkaniny</a></li>
+                                <li role="generator_tkanin"><a href="{% url 'magazyntkanin:sprzedaz_rep' %}">Sprzedaz</a></li>
+                            </ul>
+                        </li>
+                        <li {% if request.resolver_match.url_name == stan_magazynowy %}class='active'{% endif %} role="presentation"><a href="{% url 'magazyntkanin:stan_magazynowy' %}" style="font-family:'Alegreya SC', serif;font-size:20px;">Stan magazynu</a></li>
+                        <li class="dropdown">
+                            <a class="dropdown-toggle" data-toggle="dropdown" href="#" style="font-family:'Alegreya SC', serif;font-size:20px;">Tkaniny - Zarządzaj</a>
+                            <span class="caret"></span></a>
+                            <ul class="dropdown-menu">
+                                <li role="fabric_management"><a href="{% url 'magazyntkanin:tkaniny' %}">Dodaj/Edytuj tkaniny</a></li>
+                                <li role="eurotex_import"><a href="{% url 'magazyntkanin:import_zamowienia_pobierz' %}">Import zamówień Eurotex /w przygotowaniu/</a></li>
+                                <li role="eurotex_import"><a href="{% url 'magazyntkanin:inwentura_g' %}">Inwentaryzacja</a></li>
+                            </ul>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </nav>    
+        {% endif %}        
+    {% endblock nav %}
+
+	{% block body %}
+        {% block errors %}
+            {{ errors }}    
+        {% endblock errors %}       
+    {% endblock body %}
+	<!-- jQuery -->
+	<script src="{% static 'js/jquery.min.js' %}"></script>
+    <!-- Bootstrap JavaScript -->
+    <script src="{% static 'js/bootstrap.min.js' %}"></script>
+    <!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
+    {% block ajax %}
+    {% endblock ajax %}
+</body>
+
+<script type="text/javascript">
+function myFilter(pos,inp) {
+  var input, filter, table, tr, td, i;
+  input = document.getElementById(inp);
+  filter = input.value.toUpperCase();
+  table = document.getElementById("transactions");
+  tr = table.getElementsByTagName("tr");
+  for (i = 1; i < tr.length; i++) {
+    td = tr[i].getElementsByTagName("td")[pos];
+    if (td) {
+      if (td.innerHTML.toUpperCase().indexOf(filter) > -1) {
+        tr[i].style.display = "";
+      } else {
+        tr[i].style.display = "none";
+      }
+    }
+  }
+}
+</script>
+
+</html>

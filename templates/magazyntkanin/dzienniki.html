@@ -1,0 +1,57 @@
+{% extends "magazyntkanin/base.html" %}
+{% block css %}
+	<style type="text/css">
+		legend {
+			font-family: 'Alegreya SC';
+		}
+	</style>
+{% endblock css %}
+{% block body %}
+	<div class="container">
+	    <h2>{{ data }}</h2>
+	    <div class="row">
+	        <div class="col-md-offset-4"></div>
+	        <div class="col-sm-4 col-md-4 col-md-offset-4 text-center">
+	            <form action="{% url 'magazyntkanin:wyszukaj_dziennik' %}" method="POST" role="form">
+	                {% csrf_token %}
+	                <legend>Dostępne dzienniki</legend>
+	                <div class="form-group">
+	                    <label for="">Data</label>
+	                    <input type="date" class="form-control" id="" name='data_dziennika' placeholder="YYYY-MM-DD">
+	                    <label for="">Nr dziennika</label>
+	                    <input type="number" max="9999999" min="0" class="form-control" id="" name='nr_dziennika'>
+	                </div>
+	                <button type="submit" class="btn btn-primary">Submit</button>
+	            </form>
+	        </div>
+	    </div>
+	    <div class="row">
+	        <div class="errors">{{ error }}</div>
+	        <div class="row">
+	            <table class="table">
+	                <thead>
+	                    <tr>
+	                        <th>Krojownia</th>
+	                        <th>Tkaniny</th>
+	                    </tr>
+	                </thead>
+	                <tbody>
+	                    {% for each in dzienniki %}
+	                    <tr>
+	                        <td>
+	                        	<p><a href="{% url 'magazyntkanin:wyswietl_dziennik' dzial='krojownia' dziennik=each  %}"><h4>{{ each }}</h4></a></p>
+								<p><a href=" {% url 'magazyntkanin:status_dziennika' nr_dziennika=each.nr %}">Status</a></p>	                        
+                        	</td>
+	                        <td>
+	                        	<a href="{% url 'magazyntkanin:wyswietl_dziennik' dzial='magazyn' dziennik=each  %}"><h4>{{ each }}</h4></a>
+	                        	<p><a href=" {% url 'magazyntkanin:podaj_dzienniki' dziennik=each typ='wydane'%}">Aktualnie wydane</a></p>
+	                        	<p><a href=" {% url 'magazyntkanin:podaj_dzienniki' dziennik=each typ='zwrot'%}">Zwrocone</a></p>
+	                        </td>
+	                    </tr>
+	                    {% endfor %}
+	                </tbody>
+	            </table>
+	        </div>
+	    </div>
+	</div>
+{% endblock body %}

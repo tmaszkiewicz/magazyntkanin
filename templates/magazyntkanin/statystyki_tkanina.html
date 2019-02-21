@@ -1,0 +1,219 @@
+{% extends 'magazyntkanin/base.html' %}
+
+{% block body %}
+<div class="container">
+        <div class="row">
+            <div class="col-lg-4 col-md-12">
+                <h2>Tkanina: {{ tkanina.nazwa }}</h2>
+            </div>
+            <div class="col-lg-3 col-md-12">
+                <a href="{% url 'magazyntkanin:tkaniny_edit' nr_tkaniny=tkanina.id %}"><button class="btn btn-default" type="button">Edytuj</button></a>                
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-lg-2 col-md-6" >
+                <div class="row">
+                    <div class="col-md-12">
+                        <p>Indeks SAP:</p>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-12">
+                        <p>Ilość mb w magazynie:</p>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-12">
+                        <p>Na magazynie:</p>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-12">
+                        <p>Aktualnie wydanych:</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-2 col-md-6">
+                <div class="row">
+                    <div class="col-md-12">
+                        <p>{{tkanina.index_sap}}</p>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-12">
+                        <p>{{dlugosci.dlugosc__sum|default:0}} mb</p>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-12">
+                        <p>{{ rolka.count }}</p>
+                        <p>{{na_magazynie|default:0}} szt.</p>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-12">
+                        <p>{{wydane|default:0}} szt.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-2 col-md-6">
+                <div class="row">
+                    <div class="col-md-12">
+                        <p>Mające 0 mb:</p>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-12">
+                        <p>Zakończone:</p>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-12">
+                        <p></p>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-12">
+                        <p></p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-2 col-md-6">
+                <div class="row">
+                    <div class="col-md-12">
+                        <p>{{zerowe|default:0}} szt.</p>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-12">
+                        <p>{{zakonczona|default:0}} szt.</p>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-12">
+                        <p></p>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-12">
+                        <p></p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-2 col-md-6">
+                <div class="row">
+                    <div class="col-md-12">
+                        <p></p>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-12">
+                        <p></p>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-12">
+                        <p></p>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-12">
+                        <p></p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-2 col-md-6">
+                <div class="row">
+                    <div class="col-md-12">
+                        <p></p>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-12">
+                        <p></p>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-12">
+                        <p></p>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-12">
+                        <p></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <hr>
+        </div>
+        <div class="row">
+            <div class="col-lg-12 col-md-12">
+                <h4>Stany magazynowe:</h4>
+            </div>
+            <div class="col-md-12">
+                <div class="table-responsive">
+                    <table class="table table-bordered">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>NR ROLKI</th>
+                                <th>LOT</th>
+                                <th>DŁUGOŚĆ</th>
+                                <th>NR ZAMÓWIENIA</th>
+                                <th>DATA</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for each in rolka %}
+                            <tr {% if each.zakonczona %} style='background-color: rgb(204, 181, 181);'{% endif %}
+                                >
+                                <td>
+                                    <a href="{% url 'magazyntkanin:statystyki_rolka' rolka=each.pk %}">{{ each.pk }}</a>
+                                </td>
+                                <td>{{ each.nr_rolki }}</td>
+                                <td>{{ each.lot|default:" " }}</td>
+                                <td>{{ each.dlugosc }}</td>
+                                <td>
+                                    {% if each.nr_zamowienia and not each.nr_zamowienia == "" %}
+                                    <a href="{% url 'magazyntkanin:raport' %}?zamowienie={{each.nr_zamowienia}}">{{ each.nr_zamowienia|default:"" }}</a>
+                                    <a href="{% url 'magazyntkanin:raporty_zamowienie' zamowienie=each.nr_zamowienia %}"><i class="glyphicon glyphicon-list-alt"></i></a>
+                                    {% endif %}   
+                                </td>
+                                <td>{{ each.data_dostawy }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-lg-12 col-md-12">
+                <h4>Historia wykroju:</h4>
+            </div>
+            <div class="col-md-12">
+                <div class="table-responsive">
+                    <table class="table table-bordered">
+                        <thead>
+                            <tr>
+                                <th>TYP ZLECENIA</th>
+                                <th>KARTA FGK</th>
+                                <th>DATA</th>
+                                <th>DZIENNIK</th>
+                                <th>PLANOWANE ZUŻYCIE</th>
+                                <th>DŁUGOŚĆ PRZED</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock body %}

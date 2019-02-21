@@ -1,0 +1,101 @@
+{% extends "magazyntkanin/base.html" %}
+
+
+{% block body %}
+<div class="row" style="margin-top: 80px;">
+    <div class="col-xs-2 col-sm-2 col-md-2 col-lg-2">
+
+    </div>
+    <div class="col-xs-8 col-sm-8 col-md-8 col-lg-8">
+        <form action="{% url 'magazyntkanin:inwentura_g' %}" method="GET" role="form">
+            <div class="form-group col-xs-4 col-sm-4 col-md-4 col-lg-4">
+                <label for="tkanina" style="margin-top:10px;">Index tkaniny (obsluga prefiksu)</label>
+                <input type="text" class="form-control" id="" placeholder="" name="index_tkaniny">                
+            </div>
+            <div class="form-group col-xs-4 col-sm-4 col-md-4 col-lg-4">
+                <label for="nazwa_tkaniny" style="margin-top:10px;">Nazwa tkaniny (koniecznie pelna nazwa!)</label>
+                <input type="text" class="form-control" id="" placeholder="" name="nazwa_tkaniny">                
+            </div>
+            <div class="form-group col-xs-4 col-sm-4 col-md-4 col-lg-4">
+                <label for="status">Status</label>                 
+                <select name="status" class="form-control">
+                    <option value="">-----</option>
+                    <option value="0">INWENTURA</option>
+                    <option value="1">POZOSTAŁE</option>
+                    <option value="2">DO_USUNIECIA</option>
+                    <option value="3">ZLICZANIE OKRESOWE</option>
+                    <option value="4">INWENTURA_22122018</option>
+                    <option value="5">INWENTURA_06022019</option>
+                 </select>                 
+            </div>
+            <div class="row">
+                <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                    <button type="submit" class="btn btn-primary">Wyszukaj</button>                
+                </div>
+            </div>            
+        </form>        
+    </div>
+    
+</div>
+<div class="row" style="margin-top: 80px;">
+    <div class="col-xs-1 col-sm-1 col-md-1 col-lg-1" style="margin-top: 50px;">
+    </div>
+    <div class="col-xs-10 col-sm-10 col-md-10 col-lg-10">
+        <h2>Znaleziono {{wpisy.count}} wpisów:</h2>        
+        <table class="table table-hover">
+            <thead>
+                <tr>
+                    <th>Tkanina</th>
+                    <th>ID rolki</th>
+                    <th>Ilosc przed</th>
+                    <th>Ilosc po</th>
+                    <th>Skorygowano</th>
+                <!--    <th>Typ</th> -->
+                </tr>
+            </thead>
+	    <tbody>
+		{{nazwa}}
+		{% for i in inw %}
+		{% if i.isPrinted%}
+
+		<thead><tr><td><b>{{ i.nazwa_tkaniny }} {{ i.index_tkaniny }} Dł. całkowita: {{i.suma_po_rolkach}} - {{i.dlPerIndeks}} Dł. zinwenataryzowana: {{i.dlPerIndeks_inw}}</b></td></tr></thead>
+			<tr>
+		{%else%}
+
+			<tr style={ border: 0px solid blue; }>
+		{%endif%}
+
+		{% if i.typ == 'INWENTURA' %}
+		<tr bgcolor="green">
+		{% else%}
+		{%endif%}
+
+			{% if i.isPrinted%}
+
+			<td> {{ i.nazwa_tkaniny }} {{ i.index_tkaniny }}</td>
+
+			{% else %}
+			<td><font color="white"> {{ i.index_tkaniny }}</font></td>
+			{% endif %}
+			<td> {{ i.rolka_id }}</td>
+			<td> {{ i.dlugosc_rolki}}</td>
+			<td> {{ i.dlugosc_elementu}}</td>
+			<td> {{i.timestamp}}</td>
+	<!--		<td> {{i.typ}}</td>  
+
+			<td> {{i.dlPerIndeks}}</td>			
+			<td> {{i.dlPerIndeks_inw}}</td>			-->
+		</tr>
+		<tr>
+		{% endfor %}
+	        </tbody>
+		<tfoot>
+		<tr><td>
+			<a href="http://jan-svr-docker:8000/magazyn/inw_pdf">DRUKUJ OSTATNIO WYGENEROWANY RAPORT</a>
+
+		</td></tr>
+		</tfoot>
+        </table>
+    </div>
+</div>
+{% endblock body %}

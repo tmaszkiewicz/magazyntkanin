@@ -1,0 +1,46 @@
+{% extends "magazyntkanin/base.html" %}
+{% block body %}
+<div class="row" style="height:50px;">
+    <div class="col-md-12">
+        <div></div>
+    </div>
+</div>
+<div class="container">
+    <div class="row">
+        <div class="col-lg-8 col-lg-offset-2 col-md-12">
+            <div class="row">
+                <div class="col-md-12 text-center">
+                    <form action="{% url 'magazyntkanin:stan_magazynowy' %}" method="POST">
+                        {% csrf_token %}
+                        <div class="col-lg-12 col-md-12">
+                            <div class="form-group">
+                                <label class="control-label">Tkanina </label>
+                                <select class="form-control" name="tkanina">
+                                    {% for each in tkaniny %}
+                                        <option value="{{ each.tkanina.index_sap }}" {% if rolki.first.tkanina.index_sap == each.tkanina.index_sap %}selected="selected"{% endif %} id="{{ each.tkanina.index_sap }}">
+                                        {{ each.tkanina.nazwa }} / {{ each.tkanina.ilosc_na_magazynie }} mb / {{ each.tkanina.sztuk }} rolki
+                                        </option>
+                                    {% endfor %}
+                                    </optgroup>
+                                </select>
+                            </div>
+                        </div>
+                    <button class="btn btn-default" type="submit" style="height:100%;width:100%;"><i class="glyphicon glyphicon-search"></i>Wyszukaj </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row text-center">
+        <h1 style='color: #AF7474'>{{ rolki.first.tkanina.nazwa }}</h1>
+    </div>
+    <div class="row text-center">
+        {% for each in rolki %}
+            {% ifchanged each.data_dostawy %}
+                <h3>{{ each.data_dostawy }} - {{each.metry_dla_daty}} m</h3>
+            {% endifchanged %}
+                <a href="{% url 'magazyntkanin:edytuj_rolke' nr_rolki=each.pk %}"><h5>{{ each.nr_rolki }} / {{ each.w_metrach }}m </h5></a>
+        {% endfor %}
+    </div>
+</div>
+{% endblock body %}

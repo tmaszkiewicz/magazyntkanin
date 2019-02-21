@@ -1,0 +1,31 @@
+{% extends "magazyntkanin/base_k.html" %}
+
+{% block title %}
+	Paczki z bazy FGK
+{% endblock title %}
+
+{% block body %}
+<div class="container">
+	<div class="row text-center">
+		{% for each in paczki %}
+		
+		{% ifchanged each.dziennik.data %}
+			<h3>{{ each.dziennik.data }}</h3>			
+		{% endifchanged %}
+		{% ifchanged each.dziennik.nr %}			
+			{% if not forloop.counter == 1 %}
+				<hr style="border: 1px solid red">				
+			{% endif %}
+			<h2>{{ each.dziennik.nr }}</h2>
+		{% endifchanged %}
+			
+			{% if each.zakonczona %}
+				<p style="text-decoration: line-through;">			
+			{% else %}
+			<p>
+			{% endif %}
+			Dziennik: {{ each.dziennik.nr }} / Karta: {{each.karta}} / Pozycja: {{each.pozycja}} // Tkanina: {{each.tkanina}}</p>
+		{% endfor %}	
+	</div>
+</div>	
+{% endblock body %}

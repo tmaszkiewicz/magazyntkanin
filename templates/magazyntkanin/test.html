@@ -1,0 +1,13 @@
+{% extends "magazyntkanin/base.html" %}
+{% block body %}
+	{% for each in rolki %}
+		{% ifchanged each.data_dostawy %}
+			<h1>{{ each.data_dostawy }}</h1>
+		{% endifchanged %}
+		{% ifchanged each.tkanina.index_sap %}
+			<h3>{{ each.tkanina.nazwa }}</h3>
+			<p>-------------</p>
+		{% endifchanged %}
+		<p>{{ each.dlugosc }}</p>
+	{% endfor %}
+{% endblock body %}

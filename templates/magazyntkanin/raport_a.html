@@ -1,0 +1,27 @@
+{% extends "magazyntkanin/base.html" %}
+{% block body %}
+	<table class="table table-bordered table-hover">
+		<thead>
+			<tr>
+				<th>Pozycja dziennika</th>
+				<th>Wymagane metry</th>
+				<th>Przypisane rolki</th>
+				<th>Szerokość</th>
+			</tr>
+		</thead>
+		<tbody>
+			{% for each in log %}
+			<tr>
+				<td>
+					{% for test in each.historia %}
+						{{test.log.dlugosc_rolki}}		
+					{% endfor %}
+				</td>
+				<td></td>
+				<td></td>
+				<td></td>
+			</tr>
+			{% endfor %}
+		</tbody>
+	</table>	
+{% endblock body %}	

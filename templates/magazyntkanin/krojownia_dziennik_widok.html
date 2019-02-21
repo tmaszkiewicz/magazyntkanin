@@ -1,0 +1,64 @@
+{% extends "magazyntkanin/base_k.html" %}
+
+{% block title %}
+	Statusy dzienników
+{% endblock title %}
+
+{% block nav %}
+	
+{% endblock nav %}
+	
+{% block body %}
+<div class="container">
+	<div class="row text-center" style="margin-top: 100px;">
+		<div class="row">
+			<form action="." method="GET" role="form">
+				<div class="form-group">
+					<label for="dziennik">Dziennik</label>
+					<input type="text" class="form-control" id="" name="dziennik" placeholder="podaj numer...">
+				</div>
+			
+				
+			
+				<button type="submit" class="btn btn-primary">Wyświetl</button>
+			</form>
+		</div>
+	{% if OK %}
+	<h2>Dziennik nr <span style="color: red;">{{ wpisy.first.dziennik.nr}}</span></h2>
+	<h3>Wydrukowny w dniu {{ wpisy.first.dziennik.data }}</h3>
+	<table class="table table-hover">
+		<thead>
+			<tr>
+				<th>Pozycja</th>
+				<th>TA</th>
+				<th>Tkanina</th>
+				<th>Tura</th>
+				<th>Ilosc</th>
+			</tr>
+		</thead>
+		<tbody>
+	{% for each in wpisy %}
+		
+		{% if not each.ukonczone %}						
+		{% ifchanged each.pozycja %}
+			<td style="font-weight: bolder;">{{ each.pozycja }}.</td>
+			<td>{{ each.TA }}</td>
+			<td>{{ each.tkanina.nazwa }}</td>
+			<td>{{ each.tura }}</td>
+			<td>{{ each.ilosc }}</td>
+		{% else %}
+			<td></td>
+			<td>{{ each.TA }}</td>
+			<td>{{ each.tkanina.nazwa }}</td>
+			<td>{{ each.tura }}</td>
+			<td>{{ each.ilosc }}</td>
+		{% endifchanged %}
+		{% endif %}
+		</tr>
+	{% endfor %}
+		</tbody>
+	</table>
+	{% endif %}
+	</div>
+</div>	
+{% endblock body %}

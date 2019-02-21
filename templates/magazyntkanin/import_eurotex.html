@@ -1,0 +1,36 @@
+{% extends "magazyntkanin/base.html" %}
+{% load bootstrap3 %}
+{% load static %}
+
+{% block css %}
+        <style type="text/css">
+                th {
+                        text-align: center;
+                        font-size: 18px;
+                }
+        </style>
+{% endblock css %}
+
+{% block body %}
+        <center>
+        <h3>IMPORT ZAMÓWIENIA</h3>
+	  <form name="form" method="POST" enctype="multipart/form-data" action=".">
+	   {% csrf_token %}
+	   <input type= "file" placeholder="Plik" name="document" accept=".xlsx">
+	   <br>
+	   <input type= "date" placeholder="Data dostawy" name="data_dostawy"> 
+	   <center>
+	   <br>
+           <button type="submit" class="btn btn-alert">POBIERZ XLSX</button>
+	   </center>
+	  </form>
+  	<br>
+	 <p>  {{ MyTkaninyXlsx.document }} </p>
+  	</br>
+
+<!--  <p><a href="{% url 'magazyntkanin:import_zamowienia' %}">IMPORTUJ ZAMÓWIENIE</a></p>-->
+
+</center>
+
+
+{% endblock body %}

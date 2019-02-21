@@ -1,0 +1,92 @@
+{% extends "magazyntkanin/base.html" %}
+{% load bootstrap3 %}
+
+{% block css %}
+        <style type="text/css">
+                th {
+                        text-align: center;
+                        font-size: 18px;
+                }
+        </style>
+{% endblock css %}
+
+
+{% block body %}
+
+<div class="container">
+        
+        
+<!--        <div class="col-xs-4 col-sm-4 col-md-4 col-lg-4">           -->   
+                <center>
+                <h3>RAPORT INWENTARYZACJI</h3>
+		
+                </center>
+                <table id="transactions" class="table table-hover">
+                        <thead>
+			<tr>
+                	<td>
+                        <label class="control-label">PC</label>
+                        <input class= type="text" id="myIndex" onkeyup="myFilter(0,'myIndex')" placeholder="Filtruj Index tkaniny.." title="Wpisz Index tkaniny">
+                        <span class="glyphicon glyphicon-search"></span>
+                	</td>
+			<td>	
+			</td>
+			<td>	
+			</td>
+			<td>	
+			</td>
+			<td>	
+			</td>
+			<tr style={ border: 50px solid blue; }> 
+
+
+                                <tr>
+                                        <th>Indeks</th>
+                                        <th>Id Rolki</th>
+                                        <th>Dlugosc przed</th>
+                                        <th>Dlugosc po</th>
+                                        <th>Skorygowano</th>
+
+
+                                </tr>
+                        </thead>
+                        <tbody>
+                                {% for i in inw %}
+				{% if i.typ == 'INWENTURA' %}
+				<tr bgcolor="red">
+				{% else%}				
+				 	{% if i.isPrinted%}
+
+	                                	<tr>
+					{%else%}
+					
+	                                	<tr style={ border: 0px solid blue; }>
+					{%endif%}
+				{%endif%}
+
+					{% if i.isPrinted%}
+				
+					
+                                        <td> {{ i.index_tkaniny }}</td>
+
+					{% else %}
+                                        <td><font color="white"> {{ i.index_tkaniny }}</font></td>
+					{% endif %}
+                                        <td> {{ i.rolka_id }}</td>
+                                        <td> {{ i.dlugosc_rolki}}</td>
+                                        <td> {{ i.dlugosc_elementu}}</td>
+					<td> {{i.timestamp}}</td>
+					<td> {{i.typ}}</td> 		
+				</tr>
+				
+					
+	
+                                {% endfor %}
+                        </tbody>
+       <!-- </div>        -->
+      		<a href="http://jan-svr-docker:8000/magazyn/inw_pdf"><button type="button" class="btn btn-danger">RAPORT PDF</button></a>
+       
+</div>
+
+{% endblock body %}
+

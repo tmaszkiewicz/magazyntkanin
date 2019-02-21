@@ -1,0 +1,43 @@
+{% extends "magazyntkanin/base_k.html" %}
+{% block css %}
+	<style type="text/css">
+		th {
+			text-align: center;
+			font-size: 18px;
+		}
+	</style>
+{% endblock css %}
+{% block body %}
+	<h2>Dziennik nr <span style="color: red;">{{ wpisy.first.dziennik.nr}}</span></h2>
+	<h3>Planowany na {{ wpisy.first.dziennik.data }}</h3>
+	<table class="table table-hover">
+		<thead>
+			<tr>
+				<th>Pozycja</th>
+				<th>TA</th>
+				<th>Tkanina</th>
+				<th>Tura</th>
+				<th>Ilosc</th>
+			</tr>
+		</thead>
+		<tbody>
+	{% for each in wpisy %}
+		<tr style="background-color: {{ each.kolorowanie_tabeli }}; text-align: center; {% if each.ukonczone %} color: red; {% endif %}">		
+		{% ifchanged each.pozycja %}
+			<td style="font-weight: bolder;">{{ each.pozycja }}.</td>
+			<td>{{ each.TA }}</td>
+			<td>{{ each.tkanina.nazwa }}</td>
+			<td>{{ each.tura }}</td>
+			<td>{{ each.ilosc }}</td>
+		{% else %}
+			<td></td>
+			<td>{{ each.TA }}</td>
+			<td>{{ each.tkanina.nazwa }}</td>
+			<td>{{ each.tura }}</td>
+			<td>{{ each.ilosc }}</td>
+		{% endifchanged %}			
+		</tr>
+	{% endfor %}
+		</tbody>
+	</table>
+{% endblock body %}

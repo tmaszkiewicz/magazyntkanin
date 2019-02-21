@@ -1,0 +1,16 @@
+<nav class="navbar navbar-default navigation-clean">
+    <div class="container">
+        <div class="navbar-header"><a class="navbar-brand" href="{% url 'magazyntkanin:krojownia_index' %}" style="font-family:Condiment, cursive;font-size:56px;">{% block logo %}Krojownia{% endblock logo %}</a>
+            <button class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navcol-1"><span class="sr-only">Toggle navigation</span><span class="icon-bar"></span><span class="icon-bar"></span><span class="icon-bar"></span></button>
+        </div>
+        <div class="collapse navbar-collapse" id="navcol-1">
+            <ul class="nav navbar-nav navbar-right">
+                <li {% if request.resolver_match.url_name == status_dziennika %}class='active'{% endif %} role="presentation"><a href="{% url 'magazyntkanin:krojownia_status' %}" style="font-family:'Alegreya SC', serif;font-size:20px;">Status dziennika</a></li>
+                <li {% if request.resolver_match.url_name == paczki %}class='active'{% endif %} role="presentation"><a href="{% url 'magazyntkanin:krojownia_paczki' %}" style="font-family:'Alegreya SC', serif;font-size:20px;">Wyszukaj paczki</a></li>
+                <li {% if request.resolver_match.url_name == obiegowki %}class='active'{% endif %} role="presentation"><a href="{% url 'magazyntkanin:krojownia_obiegowki' %}" style="font-family:'Alegreya SC', serif;font-size:20px;">Obiegówki</a></li>
+                <li {% if request.resolver_match.url_name == edytuj %}class='active'{% endif %} role="presentation"><a href="{% url 'magazyntkanin:krojowania_edycja' %}" style="font-family:'Alegreya SC', serif;font-size:20px;">Edytuj rolke</a></li>
+                <li role="presentation"><a href="{% url 'magazyntkanin:krojownia_raport' %}" style="font-family:'Alegreya SC', serif;font-size:20px;">Raporty </a></li>
+            </ul>
+        </div>
+    </div>
+</nav>

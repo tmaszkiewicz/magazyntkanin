@@ -1,0 +1,99 @@
+{% extends "magazyntkanin/base.html" %}
+{% block body %}
+<div class="newsletter-subscribe">
+    <form class="form-inline" method="get" action="{% url 'magazyntkanin:podaj_dzienniki' %}">
+    <div class="container">
+        <div class="intro">
+            <dev class="row text-center">
+                <dev class="col-lg-6">
+                    <div class="radio">
+                        <label style="font-family:'Alegreya SC', serif;font-size:16px;">
+                            <input type="radio" {% if not zwroty %}checked{% endif %} value="wydane" name='radio' />Wydania</label>
+                    </div>
+                </dev>
+                <dev class="col-lg-6">
+                    <div class="radio">
+                        <label style="font-family:'Alegreya SC', serif;font-size:16px;">                            
+                            <input type="radio" {% if zwroty %}checked{% endif %} value='zwroty' name='radio'/>Zwroty</label>
+                    </div>
+                </dev>
+            </dev>            
+        </div>
+            <div class="form-group">
+                <input class="form-control" type="number" id="dziennik" name="dziennik" value="{{ dzienniki.first.dziennik.nr }}">
+            </div>
+            <div class="form-group">
+                <button class="btn btn-primary" type="submit">Wyszukaj</button>
+            </div>
+        </form>
+    </div>
+</div>
+<h5 class="text-center">Ostatnia dodana belka do dziennika: {{ ostatni.dziennik_nr }}</h5>
+<div class="text-center" style="margin: 20px; color: red;">{{ error }}</div>
+<div class="container">
+    <div class="row text-center"><h3 style="font-family: moonspace;font-size:48px; font-weight: bold;">{{  dzienniki.first.dziennik.nr }}</h3></div>
+    
+    {% if request.GET %}
+    <div class="row">
+        <div class="col-md-6 col-lg-10">
+        </div>
+        <div class="col-md-6 col-lg-2">
+            <a href="{% url 'magazyntkanin:sap_generator' nr_dziennika=dzienniki.first.dziennik.nr %}"><button type="button" class="btn btn-default">Generuj SAP</button></a>
+        </div>
+    </div>
+    {% endif %}
+    <div class="row">
+        <div class="col-lg-12 col-md-12">
+            <div class="table-responsive">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Pozycje dziennika</th>
+                            <th>Wymagane metry</th>
+                            <th>Historia</th>
+                            {% if zwroty %}
+                            <th>Zwrocone rolki</th>                            
+                            {% else %} 
+                            <th>Przypisane rolki</th>                            
+                            <th>Pozostale metry</th>
+                            {% endif %}
+                        </tr>
+                    </thead>
+                    <tbody>
+                    	{% for dz in dzienniki %}
+                        {% if  zwroty %}
+                        <tr>
+                        {% else %}
+                    	<tr style="background: {{ dz.css_color }};">
+                        {% endif %}
+                    		<td>{{ dz.tkanina.nazwa }}</td>
+                    		<td>{{ dz.ilosc }} m</td>
+                            <td>
+                                {% for rolka in dz.historia %}
+                                    {{ rolka.rolka.nr_rolki }} / {{ rolka.log.dlugosc_rolki }} m / {{ rolka.rolka.pk }}
+                                    <br>
+                                {% endfor %}
+                            </td>
+                            {% if  zwroty  %}
+                            <td>
+                                {% for rolka in dz.zwroty %}
+                                    <a href="{% url 'magazyntkanin:statystyki_rolka' rolka=rolka.rolka.pk %}">{{ rolka.rolka.nr_rolki }} / {{ rolka.rolka.w_metrach }} m</a><br> 
+                                {% endfor %}
+                            </td>                                
+                            {% else %} 
+                            <td>
+                                {% for rolka in dz.powiazania_wg_tkaniny %}
+                                    <a href="{% url 'magazyntkanin:statystyki_rolka' rolka=rolka.rolka.pk %}">{{ rolka.rolka.nr_rolki }} / {{ rolka.rolka.w_metrach }} m</a><br> 
+                                {% endfor %}
+                            </td>                            
+                            <td>{{ dz.pozostalo_metrow|floatformat }} m</td>
+                            {% endif %}                            
+                    	</tr>				
+                    	{% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock body %}

@@ -1,0 +1,133 @@
+{% extends "magazyntkanin/base.html" %}
+
+
+{% block body %}
+<div class="row" style="margin-top: 80px;">
+    <div class="col-xs-2 col-sm-2 col-md-2 col-lg-2">
+
+    </div>
+    <div class="col-xs-8 col-sm-8 col-md-8 col-lg-8">
+        <form action="{% url 'magazyntkanin:raport' %}" method="GET" role="form">
+            <div class="form-group col-xs-3 col-sm-3 col-md-3 col-lg-3">
+                <label for="tkanina" style="margin-top:10px;">Index tkaniny</label>
+                <input type="text" class="form-control" id="" placeholder="" name="tkanina">                
+                <label for="rolka" style="margin-top:10px;">ID rolki</label>
+                <input type="number" class="form-control" id="" placeholder="" name="rolka">
+                <label for="zamowienie" style="margin-top:10px;">Nr Zamowienia</label>
+                <input type="text" class="form-control" id="" placeholder="" name="zamowienie">
+            </div>
+            <div class="form-group col-xs-3 col-sm-3 col-md-3 col-lg-3">
+                <label for="status">Status</label>                 
+                <select name="status" class="form-control" name="status">
+                    <option value="">-----</option>
+                    <option value="0">Magazyn</option>
+                    <option value="1">Wydany</option>
+                    <option value="2">Zakończony</option>
+                 </select>                 
+                <label for="wydanie" style="margin-top:10px;">Wydanie</label>
+                <select name="wydanie" class="form-control" name="wydanie">
+                    <option value="">-----</option>
+                    <option value="0">Wydanie wewnętrzne</option>
+                    <option value="1">Sprzedaż</option>
+                    <option value="2">Wzorniki</option>
+                </select>                 
+                </div>
+            <div class="form-group col-xs-6 col-sm-6 col-md-6 col-lg-6">
+                <div class="row">
+                    <div class="form-group col-xs-6 col-sm-6 col-md-6 col-lg-6">
+                        <label for="dlugosc">Długość</label>
+                        <input type="number" min="0" class="form-control" id="" placeholder="" name="dlugosc">
+                    </div>
+                    <div class="col-xs-6 col-sm-6 col-md-6 col-lg-6 form-group" >
+                        <input type="radio" name="dlugosc_radio" id="input" value="lt"> Mniej niż                    
+                        <br>
+                        <input type="radio" name="dlugosc_radio" id="input" value="gt"> Wiecej niż                
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="form-group col-xs-6 col-sm-6 col-md-6 col-lg-6">
+                        <label for="data_dostawy" >Data dostawy</label>
+                        <input type="date" class="form-control" id="" placeholder="" name="data_dostawy">
+                    </div>
+                    <div class="col-xs-6 col-sm-6 col-md-6 col-lg-6 form-group" style >
+                        <input type="radio" name="data_radio" id="input" value="lt"> Przed datą                 
+                        <br>
+                        <input type="radio" name="data_radio" id="input" value="gt"> Po dacie
+                        <br>
+                        <input type="radio" name="data_radio" id="input" value="eq"> Dokładnie
+                    </div>
+                </div>
+            </div>                       
+            <div class="row">
+                <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                    <button type="submit" class="btn btn-primary">Wyszukaj</button>                
+                </div>
+            </div>            
+        </form>        
+    </div>
+    
+</div>
+<div class="row text-center">    
+    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+        <h4 class="errors">{{error}}</h4>
+        <h4 class="errors">{{test}}</h4>
+    </div>
+</div>
+<div class="row" style="margin-top: 80px;">
+    <div class="col-xs-1 col-sm-1 col-md-1 col-lg-1" style="margin-top: 50px;">
+    </div>
+    <div class="col-xs-10 col-sm-10 col-md-10 col-lg-10">
+        <h2>Znaleziono {{wpisy.count}} wpisów:</h2>        
+        <table class="table table-hover">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Tkanina</th>
+                    <th>Nr rolki</th>
+                    <th>Lot</th>
+                    <th>Status</th>
+                    <th>Nr zamowienia</th>
+                    <th>WZ</th>
+                    <th>Długość</th>
+                    <th>Szerokość</th>
+                    <th>Dzienniki</th>
+                    <th>Data dostawy</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for rolka in wpisy %}                
+                <tr>
+                    <td>
+                        {{ rolka.pk }}
+                        <a href="{% url 'magazyntkanin:statystyki_rolka' rolka=rolka.pk %}"><i class="glyphicon glyphicon-list-alt"></i></a>
+                    </td>
+                    <td>
+                        <a href="?tkanina={{rolka.tkanina.index_sap}}">{{ rolka.tkanina }}</a>
+                        <a href="{% url 'magazyntkanin:statystyki_tkanina' tkanina=rolka.tkanina.index_sap %}"><i class="glyphicon glyphicon-list-alt"></i></a>
+                    </td>
+                    <td>{{ rolka.nr_rolki }}</td>
+                    <td>{{ rolka.lot }}</td>
+                    <td>{{ rolka.get_status_display }}</td>
+                    <td>
+                        <a href="?zamowienie={{rolka.nr_zamowienia}}">{{ rolka.nr_zamowienia|default:"" }}</a>
+                        {% if rolka.nr_zamowienia and not rolka.nr_zamowienia == "" %}
+                            <a href="{% url 'magazyntkanin:raporty_zamowienie' zamowienie=rolka.nr_zamowienia %}"><i class="glyphicon glyphicon-list-alt"></i></a>
+                        {% endif %}                        
+                    </td>
+                    <td>{{ rolka.get_wydanie_display }}</td>
+                    <td>{{ rolka.dlugosc|floatformat:1 }} mb</td>
+                    <td>{{ rolka.szerokosc }}</td>
+                    <td>
+                        {% for each in rolka.wpisymagazynpowiazania_set.all %}
+                        {{ each.dziennik.nr }}
+                        <a href="{% url 'magazyntkanin:podaj_dzienniki' %}?radio=wydane&dziennik={{each.dziennik.nr}}"><i class="glyphicon glyphicon-list-alt"></i></a><br />
+                        {% endfor %}
+                    </td>
+                    <td>{{ rolka.data_dostawy }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock body %}

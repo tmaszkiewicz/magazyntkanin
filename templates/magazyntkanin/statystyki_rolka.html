@@ -1,0 +1,228 @@
+{% extends 'magazyntkanin/base.html' %}
+
+{% block body %}
+<div class="container">
+        <div class="row">
+            <div class="col-lg-4 col-md-12">
+                <h2>Rolka nr : {{ rolka.pk }}</h2>
+            </div>
+            <div class="col-lg-3 col-md-12">
+                <a href="/edytuj/krojownia/{{rolka.pk}}"><button class="btn btn-default" type="button">Edytuj</button></a>
+                <a href="/test/obiegowka_full/{{rolka.pk}}"><button class="btn btn-default" type="button">Obiegówka</button></a>
+                <a href="/drukuj/{{rolka.pk}}"><button class="btn btn-default" type="button">Drukuj</button></a>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-lg-2 col-md-6">
+                <div class="row">
+                    <div class="col-md-12">
+                        <p>ID</p>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-12">
+                        <p>Nr rolki</p>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-12">
+                        <p>Lot</p>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-12">
+                        <p>Nr zamówienia</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-2 col-md-6">
+                <div class="row">
+                    <div class="col-md-12">
+                        <p>{{rolka.id}}</p>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-12">
+                        <p>{{rolka.nr_rolki}}</p>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-12">
+                        <p>{{rolka.lot}}</p>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-12">
+                        <p>{{rolka.nr_zamowienia}}</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-2 col-md-6">
+                <div class="row">
+                    <div class="col-md-12">
+                        <p>Długość (mb)</p>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-12">
+                        <p>Szerokość (mm)</p>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-12">
+                        <p>Status</p>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-12">
+                        <p>Barcode producenta</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-2 col-md-6">
+                <div class="row">
+                    <div class="col-md-12">
+                        <p>{{rolka.dlugosc|floatformat}}</p>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-12">
+                        <p>{{rolka.szerokosc}}</p>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-12">
+                        <p>{{rolka.get_status_display}}</p>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-12">
+                        <p>{{rolka.barcode}}</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-2 col-md-6">
+                <div class="row">
+                    <div class="col-md-12">
+                        <p>Tkanina</p>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-12">
+                        <p>Długość początkowa</p>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-12">
+                        <p></p>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-12">
+                        <p></p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-2 col-md-6">
+                <div class="row">
+                    <div class="col-md-12">
+                        <a href="{% url 'magazyntkanin:statystyki_tkanina' rolka.tkanina.index_sap%}"><p>{{rolka.tkanina}}</p></a>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-12">
+                        <p>{{rolka.dlugosc_poczatkowa}}</p>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-12">
+                        <p></p>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-12">
+                        <p></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <hr>
+        </div>
+        <div class="row">
+            <div class="col-lg-12 col-md-12">
+                <h4>Zmiany magazynowe:</h4>
+            </div>
+            <div class="col-md-12">
+                <div class="table-responsive">
+                    <table class="table table-bordered">
+                        <thead>
+                            <tr>
+                                <th>TYP ZLECENIA</th>
+                                <th>DATA</th>
+                                <th>DZIENNIK</th>
+                                <th>DŁUGOŚĆ</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for each in log_m %}
+                            <tr>
+                                <td>{{ each.typ }}</td>
+                                <td>{{ each.timestamp }}</td>
+                                <td>
+                                    {% if each.dziennik_nr %}
+                                    <a href="/magazyn/raporty/?dziennik={{each.dziennik_nr}}">
+                                        {{ each.dziennik_nr }}
+                                    </a>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                {% if each.typ == "EDYCJA" %}
+                                    przed {% if not each.dlugosc_rolki %}0{% else %}{{ each.dlugosc_rolki }}{% endif %} / po {{each.dlugosc_elementu}}
+                                    {% else %}
+                                    {{ each.dlugosc_rolki }}
+                                {% endif %}                                
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-lg-12 col-md-12">
+                <h4>Historia wykroju:</h4>
+            </div>
+            <div class="col-md-12">
+                <div class="table-responsive">
+                    <table class="table table-bordered">
+                        <thead>
+                            <tr>
+                                <th>TYP ZLECENIA</th>
+                                <th>KARTA FGK</th>
+                                <th>DATA</th>
+                                <th>DZIENNIK</th>
+                                <th>PLANOWANE ZUŻYCIE</th>
+                                <th>DŁUGOŚĆ PRZED</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for each in log_fgk %}
+                            <tr>
+                                <td>{{each.typ}}</td>
+                                <td>{{each.nr_fgk|default:""}}</td>
+                                <td>{{each.timestamp}}</td>
+                                <td>{{each.dziennik_nr|default:""}}</td>
+                                <td>{{each.dlugosc_elementu|default:""}}</td>
+                                <td>{{each.dlugosc_rolki}}</td>
+                            </tr>
+                            {% endfor %}
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock body %}

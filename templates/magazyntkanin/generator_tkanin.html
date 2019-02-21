@@ -1,0 +1,122 @@
+{% extends "magazyntkanin/base.html" %} {% load bootstrap3 %} {% block body %}
+<div class="newsletter-subscribe">
+    <div class="container">
+        <div class="intro"></div>
+        <div id='formularz'>
+            <form class="form-inline" name="drukuj" method="post">
+                <div class="row">
+                    <div class="form-group col-lg-4 col-lg-4">
+                        <label class="control-label" for="tkanina">Tkanina</label>
+                        <select class="form-control" id="tkanina" name='nr_sap' style="width: 100%">
+                            {% for each in wszystkie %}
+                            <option value="{{ each.index_sap }}">{{ each.nazwa }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="form-group col-lg-4 col-lg-4">
+                        <label class="control-label" for="date">Data dostawy</label>
+                        <input class="form-control" style="width: 100%" type="date" id="data-przyjecia" name="data-przyjecia">
+                    </div>
+                    <div class="form-group col-xs-4 col-md-4">
+                        <label class="control-label" for="ilosc">Ilość</label>
+                        <input class="form-control" style="width: 100%" type="number" id="ilosc" min="1" value="1" name='ilosc'>
+                    </div>
+                </div>
+                <div class="row" style="margin: 20px;">
+                    <div class="form-group">
+                        <button class="btn btn-primary" type="button" id="drukuj">Drukuj</button>
+			<br>
+			<a href="../drukuj_etykiety_test" style="color:white">test</a>
+                    </div>
+                </div>
+            </form>
+        </div>
+        <div class="checkbox text-center">
+            <label>
+                <input type="checkbox" value="" id='mass'> Masowy wydruk
+            </label>
+        </div>
+        <div id='mass_formularz'>
+            <form class="form-inline" name="drukuj" method="post">
+                <div class="row">
+                    <div class="form-group col-lg-4 col-lg-4">
+                    </div>
+                    <div class="form-group col-lg-4 col-lg-4">
+                        <label class="control-label" for="date">Data dostawy</label>
+                        <input class="form-control" style="width: 100%" type="date" id="data-przyjecia-mass" name="data-przyjecia">
+                    </div>
+                    <div class="form-group col-xs-4 col-md-4">
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="form-group col-lg-4 col-lg-4">
+                    </div>
+                    <div class="form-group col-lg-4 col-lg-4">
+                        <label class="control-label" for="zamowienie">Nr. zamówienia</label>
+                        <input class="form-control" style="width: 100%" type="text" id="zamowienie" name="zamowienie">
+                    </div>
+                    <div class="form-group col-xs-4 col-md-4">
+                    </div>
+                </div>                
+                <div class="row" style="margin-top: 20px;">
+                    <textarea name="mass" id="inputMass" class="form-control text-center" rows="3" required="required" style="width: 50%; height: 100px;" placeholder="index tkaniny, ilość"></textarea>
+                </div>
+                <div class="row" style="margin: 20px;">
+                    <div class="form-group">
+                        <button class="btn btn-primary" type="button" id="drukuj">Drukuj</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+<div class="row">
+    <div class="col-lg-2 col-lg-offset-5 col-md-12">
+        <div class="text-center" id='message'></div>
+    </div>
+</div>
+{% endblock body %} {% block ajax %}
+<script type="text/javascript">
+$(document).ready(function() {
+    $('#mass_formularz').hide();
+    $('#mass').click(function(event) {
+        $('#formularz').toggle();
+        $('#mass_formularz').toggle();
+    });
+
+    $('button').click(function(event) {
+        console.log("????");
+        if ($('#mass').is(':checked')) {
+            var dane = {
+                'mass': $('#inputMass').val(),
+                'zamowienie': $('#zamowienie').val(),
+                'data-przyjecia': $('#data-przyjecia-mass').val()
+            };
+        } else {
+            var dane = {
+                'ilosc': $('#ilosc').val(),
+                'nr_sap': $('#tkanina').val(),
+                'data-przyjecia': $('#data-przyjecia').val()
+            };
+        }
+        console.log(dane);
+        $.ajax({
+                url: '{% url "magazyntkanin:drukuj_etykiety" %}',
+                type: 'GET',
+                // dataType: 'json',                
+                data: dane,
+            })
+            .done(function(response) {
+                $('#message').html("<span class='label label-default text-center'>" + response + "</span>")
+                console.log("success");
+            })
+            .fail(function(response) {
+                console.log("error");
+            })
+            .always(function(response) {
+                console.log("complete");
+            });
+    });
+});
+</script>
+{% endblock ajax %}

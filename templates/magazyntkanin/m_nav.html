@@ -1,0 +1,36 @@
+<nav class="navbar navbar-default navigation-clean">
+    <div class="container">
+        <div class="navbar-header"><a class="navbar-brand" href="{% url 'magazyntkanin:magazyn_index' %}" style="font-family:Condiment, cursive;font-size:48px;">{% block logo %}Magazyn Tkanin{% endblock logo %}</a>
+            <button class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navcol-1"><span class="sr-only">Toggle navigation</span><span class="icon-bar"></span><span class="icon-bar"></span><span class="icon-bar"></span></button>
+        </div>
+        <div class="collapse navbar-collapse" id="navcol-1">
+            <ul class="nav navbar-nav navbar-right">
+                <li {% if request.resolver_match.url_name == podaj_dzienniki %}class='active'{% endif %} role="presentation"><a href="{% url 'magazyntkanin:podaj_dzienniki' %}" style="font-family:'Alegreya SC', serif;font-size:20px;">Status dziennika</a></li>                    
+                <li class="dropdown">
+                        <a class="dropdown-toggle" data-toggle="dropdown" href="#" style="font-family:'Alegreya SC', serif;font-size:20px;">Generatory</a>
+                        <span class="caret"></span></a>
+                        <ul class="dropdown-menu">
+                            <li role="generator_tkanin"><a href="{% url 'magazyntkanin:generator' %}">Generator tkanin</a></li>
+                            <li role="generator_szablonow"><a href="{% url 'magazyntkanin:szablon_a4'%}">Szablon tkanin A4</a></li>
+                        </ul>
+                    </li>
+                <li class="dropdown">
+                    <a class="dropdown-toggle" data-toggle="dropdown" href="#" style="font-family:'Alegreya SC', serif;font-size:20px;">Wyszukiwanie</a>
+                    <span class="caret"></span></a>
+                    <ul class="dropdown-menu">
+                        <li role="generator_tkanin"><a href="{% url 'magazyntkanin:raport' %}">Tkaniny</a></li>
+                    </ul>
+                </li>
+                <li {% if request.resolver_match.url_name == stan_magazynowy %}class='active'{% endif %} role="presentation"><a href="{% url 'magazyntkanin:stan_magazynowy' %}" style="font-family:'Alegreya SC', serif;font-size:20px;">Stan magazynu</a></li>
+                <li class="dropdown">
+                    <a class="dropdown-toggle" data-toggle="dropdown" href="#" style="font-family:'Alegreya SC', serif;font-size:20px;">Tkaniny - Zarządzaj</a>
+                    <span class="caret"></span></a>
+                    <ul class="dropdown-menu">
+                        <li role="fabric_management"><a href="{% url 'magazyntkanin:tkaniny' %}">Dodaj/Edytuj tkaniny</a></li>
+                        <li role="eurotex_import"><a href="{% url 'magazyntkanin:import_zamowienia_pobierz' %}">Import zamówień Eurotex /w przygotowaniu/</a></li>
+                    </ul>
+                </li>
+            </ul>
+        </div>
+    </div>
+</nav>

@@ -1,0 +1,33 @@
+{% extends "magazyntkanin/base.html" %}
+{% block body %}
+
+<div class="container">
+	<div class="row">
+		<div class="text-center">
+			<h2>Zamowienie nr: {{zamowienie}}</h2>
+        </div>
+    </div>
+	<table class="table table-bordered table-hover">
+		<thead>
+			<tr>
+				<th>Tkanina</th>
+				<th>Ilość belek</th>
+				<th>Suma metrów</th>
+			</tr>
+		</thead>
+		<tbody>
+			{% for each in wpisy %}
+			{% ifchanged each.tkanina %}
+			<tr>
+				<td>
+					{{each.tkanina}}
+				</td>
+				<td>{{ each.ilosc_belek.count }}</td>
+				<td>{{ each.suma }}</td>
+			</tr>
+			{% endifchanged %}
+			{% endfor %}
+		</tbody>
+	</table>	
+</div>
+	{% endblock body %}	

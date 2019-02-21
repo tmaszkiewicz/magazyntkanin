@@ -1,0 +1,90 @@
+{% extends "magazyntkanin/base.html" %}
+
+
+{% block body %}
+<div class="row" style="margin-top: 80px;">
+    <div class="col-xs-2 col-sm-2 col-md-2 col-lg-2">
+
+    </div>
+    <div class="col-xs-8 col-sm-8 col-md-8 col-lg-8">
+        <form action="{% url 'magazyntkanin:inwentura_g' %}" method="GET" role="form">
+            <div class="form-group col-xs-3 col-sm-3 col-md-3 col-lg-3">
+                <label for="tkanina" style="margin-top:10px;">Index tkaniny</label>
+                <input type="text" class="form-control" id="" placeholder="" name="index_tkaniny">                
+            </div>
+            <div class="form-group col-xs-3 col-sm-3 col-md-3 col-lg-3">
+                <label for="status">Status</label>                 
+                <select name="status" class="form-control" name="status INV">
+                    <option value="">-----</option>
+                    <option value="0">INWENTURA</option>
+                    <option value="1">POZOSTAŁE</option>
+                 </select>                 
+                </div>
+            <div class="row">
+                <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                    <button type="submit" class="btn btn-primary">Wyszukaj</button>                
+                </div>
+            </div>            
+        </form>        
+    </div>
+    
+</div>
+<div class="row text-center">    
+    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+        <h4 class="errors">{{error}}</h4>
+        <h4 class="errors">{{test}}</h4>
+    </div>
+</div>
+<div class="row" style="margin-top: 80px;">
+    <div class="col-xs-1 col-sm-1 col-md-1 col-lg-1" style="margin-top: 50px;">
+    </div>
+    <div class="col-xs-10 col-sm-10 col-md-10 col-lg-10">
+        <h2>Znaleziono {{wpisy.count}} wpisów:</h2>        
+        <table class="table table-hover">
+            <thead>
+                <tr>
+                    <th>Tkanina</th>
+                    <th>ID rolki</th>
+                    <th>Ilosc przed</th>
+                    <th>Ilosc po</th>
+                    <th>Skorygowano</th>
+                    <th>Typ</th>
+                </tr>
+            </thead>
+	    <tbody>
+		{{nazwa}}
+		{% for i in inw %}
+		{% if i.typ == 'INWENTURA' %}
+		<tr bgcolor="red">
+		{% else%}
+			{% if i.isPrinted%}
+
+				<tr>
+			{%else%}
+
+				<tr style={ border: 0px solid blue; }>
+			{%endif%}
+		{%endif%}
+
+			{% if i.isPrinted%}
+
+
+			<td> {{ i.nazwa_tkaniny }} {{ i.index_tkaniny }}</td>
+
+			{% else %}
+			<td><font color="white"> {{ i.index_tkaniny }}</font></td>
+			{% endif %}
+			<td> {{ i.rolka_id }}</td>
+			<td> {{ i.dlugosc_rolki}}</td>
+			<td> {{ i.dlugosc_elementu}}</td>
+			<td> {{i.timestamp}}</td>
+			<td> {{i.typ}}</td>
+		</tr>
+		{% endfor %}
+	        </tbody>
+
+
+        </table>
+    </div>
+</div>
+{% endblock body %}

@@ -1,0 +1,27 @@
+{% extends "magazyntkanin/base.html" %}
+{% load bootstrap3 %}
+{% block css %}
+	<style type="text/css">
+		select {
+			height: 20px;
+		}
+		input {
+			height: 20px;
+		}
+	</style>
+{% endblock css %}
+{% block body %}
+<div class="container">
+	<p>{{request.path}}</p>
+<form action="" method="POST" role="form">
+	<legend>Edycja rolki: ID {{ nr }}</legend>
+	{% csrf_token %}
+		{% bootstrap_form form%}
+	{% buttons %}
+	<button type="submit" class="btn btn-primary">Zapisz</button>
+	<a href="{% url 'magazyntkanin:drukuj_etykiete' nr_rolki=form.instance.pk %}">Drukuj</a>
+	<a href="{% url 'magazyntkanin:obiegowka_full' nr_rolki=form.instance.pk %}">Obiegowka</a>
+	{% endbuttons %}
+</div>
+</form>
+{% endblock body %}

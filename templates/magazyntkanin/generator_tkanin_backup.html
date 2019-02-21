@@ -1,0 +1,84 @@
+{% extends "magazyntkanin/base.html" %}
+{% load bootstrap3 %}
+{% block css %}
+	<style type="text/css">
+		select {
+			height: 30px;
+		}
+		input {
+			height: 30px;
+		}
+		body {
+			margin-top: 100px;
+		}
+		legend {
+			font-size: 48px;
+			font-family: fantasy;
+		}
+	</style>
+{% endblock css %}
+{% block body %}
+<nav class="navbar navbar-default navigation-clean">
+    <div class="container">
+        <div class="navbar-header"><a class="navbar-brand" href="#" style="font-family:Condiment, cursive;font-size:48px;"> Magazyn Tkanin</a>
+            <button class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navcol-1"><span class="sr-only">Toggle navigation</span><span class="icon-bar"></span><span class="icon-bar"></span><span class="icon-bar"></span></button>
+        </div>
+        <div class="collapse navbar-collapse" id="navcol-1">
+            <ul class="nav navbar-nav navbar-right">
+                <li class="active" role="presentation"><a href="#" style="font-family:'Alegreya SC', serif;font-size:20px;">Status dziennika</a></li>
+                <li role="presentation"><a href="#" style="font-family:'Alegreya SC', serif;font-size:20px;">Generator etykiet</a></li>
+                <li role="presentation"><a href="#" style="font-family:'Alegreya SC', serif;font-size:20px;">Stan magazynu</a></li>
+                <li role="presentation"><a href="#" style="font-family:'Alegreya SC', serif;font-size:20px;">Raporty </a></li>
+            </ul>
+        </div>
+    </div>
+</nav>
+<div class="newsletter-subscribe">
+    <div class="container">
+        <div class="intro"></div>
+        <form class="form-inline" method="post">
+            <div class="form-group">
+                <label class="control-label" for="tkanina">Tkanina</label>
+                <select class="form-control" id="tkanina" name='nr_sap'>
+                    {% for each in wszystkie %}
+                    <option value="{{ each.index_sap }}">{{ each.nazwa }}</option>
+                    {% endfor %}
+                </select>
+                <label class="control-label" for="ilosc">Ilość </label>
+                <input class="form-control" type="number" id="ilosc" min="1" value="1" name='ilosc'>
+            </div>
+            <div class="form-group">
+                <button class="btn btn-primary" type="button" id="drukuj">Drukuj</button>
+            </div>
+        </form>
+    </div>
+</div>
+<div class="row">
+    <div class="col-lg-2 col-lg-offset-5 col-md-12">
+        <div class="text-center"><span class="label label-default text-center" id='message'></span></div>
+    </div>
+</div>
+
+<script type="text/javascript">
+	$(document).ready(function() {
+		$.ajax({
+			url: '{% url "magazyntkanin:drukuj_etykiety" %}',
+			type: 'POST',
+			// dataType: 'json',
+			data: {'ilosc': $('#ilosc').val(),
+				   'nr_sap': $('#tkanina').val()},
+		})
+		.done(function(response) {
+			$('#id').html(response)
+			console.log("success");
+		})
+		.fail(function(response) {
+			console.log("error");
+		})
+		.always(function(response) {
+			console.log("complete");
+		});
+		
+	});
+</script>
+{% endblock body %}

@@ -1,0 +1,153 @@
+{% extends "magazyntkanin/base.html" %}
+{% load static %}
+{% block css %}
+	<style type="text/css">
+		img {
+			max-height: 100%;
+			max-width: 100%;
+		}
+
+		#generuj {
+			margin-top: 10px;
+		}
+
+		.pobieranie {
+			display: none;
+		}
+	</style>
+{% endblock css %}
+{% block body %}
+<div class="container">
+	<div class="row">
+		<div class="col-md-4"></div>
+		<div class="col-md-4 text-center">
+			<form action="" id="formularz" method="POST" role="form">
+				{% csrf_token %}
+				<legend>Drukuj dzienniki - numery:</legend>
+				<div class="form-group>
+					<label for="od">Od:</label>
+					<input type="text" class="form-control" id="od" placeholder="311..." name="od">
+					<label for="do">Do:</label>
+					<input type="text" class="form-control" id="do" placeholder="311..." name="do">
+				</div>
+			</form>
+			<button style="margin-top: 20px;" id='drukuj' class="btn btn-primary" name='drukuj'>Drukuj</button>
+		</div>
+		<div class="col-md-2"></div>
+		<div class="pobieranie col-md-1"><img src="{% static '/img/pobrane.gif' %}" alt="Pobieranie..."></div>
+		<div class="col-md-1">
+			<button type="" id='generuj' class="btn btn-danger" name='generuj'>Wczytaj dzienniki</button>
+		</div>
+	</div>
+	<div class="row">
+		<div col-md-6 col-md-offset-6 >
+			<table class="table">
+				<thead>
+					<tr>
+						<th>Krojownia</th>
+						<th>Magazyn Tkanin</th>
+					</tr>
+				</thead>
+				<tbody id="dzienniki_tab">
+				</tbody>
+			</table>
+		</div>
+	</div>
+	<div class="message text-center"></div>
+	<div class="error text-center" style="color: red;"></div>
+
+</div>
+{% endblock body %}
+{% block ajax %}
+<script type="text/javascript">
+	$(document).ready(function($) {
+		$('#generuj').click(function(event) {
+			$('.pobieranie').show('fast');
+			$.ajax({
+				url: '/planowanie/ajax/',
+				type: 'GET',
+				dataType: 'json',
+				data: {'generuj': true},
+				async: true,
+			})
+			.done(function(response) {
+				console.log(response);
+				$('.message').html("<h5>Dodano dzienniki:<br />Krojownia: "+response.status.krojownia
+					+"<br />Magazyn: "+response.status.magazyn
+					+"<br />Błedy: "+response.status.errors
+					+"</h5>");
+				$('.error').html("");
+				if (response.braki.krojownia.length > 0 ) {
+					var string_ = "";
+					for (var i = response.braki.krojownia.length - 1; i >= 0; i--) {
+						string_ += response.braki.krojownia[i]+"<br />"
+					}
+					$('.error').append("<h5>Brakujące dzienniki w katalogu - Magazyn: <br />"+string_+"</h5>");	
+				}
+				if (response.braki.magazyn.length > 0 ) {
+					var string_ = "";
+					for (var i = response.braki.magazyn.length - 1; i >= 0; i--) {
+						string_ += response.braki.magazyn[i]+"<br />"
+					}
+					$('.error').append("<h5>Brakujące dzienniki w katalogu - Krojownia: <br />"+string_+"</h5>");	
+				}
+				if (response.status.brak_danych.length > 0 ) {
+					var string_ = "";
+					for (var i = response.status.brak_danych.length - 1; i >= 0; i--) {
+						string_ += response.status.brak_danych[i]+"<br />"
+					}
+					$('.error').append("<h5>Brak pliku z danymi dla wydruków: <br />"+string_+"</h5>");	
+				}
+				console.log("success");
+				console.log(response.status.brak_danych);
+			})
+			.fail(function(response) {
+				$('.error').html("");
+				$('.error').html(response);
+				console.log("error");
+
+			})
+			.always(function(response) {
+				console.log("complete");
+				$('.pobieranie').hide('fast');
+			});
+
+		});
+
+		$('#drukuj').click(function(event) {
+			$.ajax({
+				url: '/planowanie/ajax/',
+				type: 'GET',
+				dataType: 'json',
+				data: {'drukuj': true,
+					   'od': $('#od').val(),
+					   'do': $('#do').val(),
+					   'generuj': false},
+			})
+			.done(function(response) {
+				$('#dzienniki_tab').html("");
+				for (var i = response.dane.length - 1; i >= 0; i--) {
+					$('#dzienniki_tab').append("<tr><td><a href='/dzienniki/krojownia/" + response.dane[i] + "'>"+response.dane[i]+"</a></td><td><a href='/dzienniki/magazyn/" + response.dane[i] + "'>"+response.dane[i]+"</a></td></tr>");
+				}
+				if (response.errors.length > 0) {
+					$('.error').html("");
+					$('.error').append('Nie odnaleziono dziennikow dla: <br />');
+					for (var i = response.errors.length - 1; i >= 0; i--) {
+						$('.error').append(response.errors[i]+"<br />");
+					}
+				}
+				$('.message').html("<a href='/planowanie/drukowanie/'>Połączony PDF</a>")
+				console.log("success");
+			})
+			.fail(function(response) {
+				$('.error').html("Niepoprawne dane!");
+				console.log("error");
+			})
+			.always(function(response) {
+				console.log("complete");
+			});
+
+		});
+	});
+</script>
+{% endblock ajax %}
