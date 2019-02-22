@@ -398,8 +398,11 @@ def generuj_raport_inwentury2(inw):
             #PODZEL STRONY!
             
             #dt = datetime.fromtimestamp(int(str(i['timestamp']))).isoformat()
-
-            c.drawString(cols[5], height-(row % rowsForPage)-top, str(i['timestamp'].strftime("%Y-%m-%d %H:%M")))
+            try:
+                c.drawString(cols[5], height-(row % rowsForPage)-top, str(i['timestamp'].strftime("%Y-%m-%d %H:%M")))
+            except:
+                None
+            
         else:
             row+=10
             #hpos = modulo_no_zero(row,rowsForPage,top)
