@@ -307,16 +307,20 @@ def magazyn_inwentura_grupowana(request):
 
                 typ_inwentury="INWENTURA"
             elif int(status)==3:
+                typ_inwentury="ZLICZANIE"
                 inw3 = []
                 for  inw_ in Rolka_zliczana.objects.filter(tkanina__index_sap__startswith=index_tkaniny):
                     inw2={}
                     inw2['rolka_id'] = inw_.pk
                     inw2['index_tkaniny'] = inw_.tkanina.index_sap
                     inw2['dlugosc_elementu'] = inw_.dlugosc
+                    inw2['typ']=typ_inwentury
+                    inw2['nazwa_tkaniny']=inw_.tkanina.nazwa
+                    inw2['dlugosc_rolki']=inw_.dlugosc
                     inw3.append(inw2)
 
-                context['inw'] = inw3
-                return render(request, url, context)
+                #context['inw'] = inw3
+                #return render(request, url, context)
 
                 
 
@@ -338,16 +342,20 @@ def magazyn_inwentura_grupowana(request):
                 inw = list(filter(lambda x: do_wywalenia(x.rolka_id),inw_))
                 typ_inwentury="INWENTURA"
             elif int(status)==3:
+                typ_inwentury="ZLICZANIE"
                 inw3 = []
                 for  inw_ in Rolka_zliczana.objects.filter(tkanina__index_sap__startswith=index_tkaniny):
                     inw2={}
                     inw2['rolka_id'] = inw_.pk
                     inw2['index_tkaniny'] = inw_.tkanina.index_sap
-                    inw2['dlugosc_elementu'] = inw_.dlugosc
+                    inw2['dlugosc_elementu'] = inw_.dlugosc # dlugosc rolki, i elementu jako dlugosc przed i po w tym wypadku takie same
+                    inw2['typ']=typ_inwentury
+                    inw2['nazwa_tkaniny']=inw_.tkanina.nazwa
+                    inw2['dlugosc_rolki']=inw_.dlugosc  # w tym przypadku interesuje nas długość "po", nie ewidencjonujemy zmian, wiec i w dlugosc_elementu i w dlugosc_rolki  tu i tu mamy dlugosc rolko
                     inw3.append(inw2)
 
-                context['inw'] = inw3
-                return render(request, url, context)
+                #context['inw'] = inw3
+                #return render(request, url, context)
                 
             elif int(status)==4:
                 typ_inwentury="INWENTURA_22122018"
@@ -356,24 +364,25 @@ def magazyn_inwentura_grupowana(request):
                 typ_inwentury="INWENTURA_06022019"
                 inw = Log.objects.filter(typ=typ_inwentury).order_by('rolka_id','-timestamp').distinct('rolka_id')
 
-        inw3=[]
         ind_old=0
-       
-        for i in inw:
-            if Rolka.objects.filter(pk=i.rolka_id).exists():
-                
-                inw2={}
-                inw2['nazwa_tkaniny']=Tkanina.objects.filter(index_sap=i.index_tkaniny)[0].nazwa
-                inw2['rolka_id']=i.rolka_id
-                inw2['index_tkaniny']=i.index_tkaniny
-                inw2['dlugosc_rolki']=i.dlugosc_rolki
-                inw2['dlugosc_elementu']=i.dlugosc_elementu
-                inw2['typ']=i.typ
-                inw2['timestamp']=i.timestamp
-                inw2['isPrinted']=True
-                inw2['suma_po_rolkach']=Rolka.objects.filter(tkanina__index_sap=i.index_tkaniny).aggregate(Sum('dlugosc'))
-                #print(Rolka.objects.filter(tkanina__index_sap=12641),"23333")
-                inw3.append(inw2)
+        if (status=='' or int(status)!=3):
+            inw3=[]
+            for i in inw:
+                if Rolka.objects.filter(pk=i.rolka_id).exists():
+                    
+                    inw2={}
+                    inw2['nazwa_tkaniny']=Tkanina.objects.filter(index_sap=i.index_tkaniny)[0].nazwa
+                    inw2['rolka_id']=i.rolka_id
+                    inw2['index_tkaniny']=i.index_tkaniny
+                    inw2['dlugosc_rolki']=i.dlugosc_rolki
+                    inw2['dlugosc_elementu']=i.dlugosc_elementu
+                    inw2['typ']=i.typ
+                    inw2['timestamp']=i.timestamp
+                    inw2['isPrinted']=True
+                    inw2['suma_po_rolkach']=Rolka.objects.filter(tkanina__index_sap=i.index_tkaniny).aggregate(Sum('dlugosc'))
+                    #print(Rolka.objects.filter(tkanina__index_sap=12641),"23333")
+                    inw3.append(inw2)
+        # GDZIES TU SIE NIE TWORZY inw3, generalnnie nie wpada w sytuacji brak statusu i i nie ma wtedy inw3, jak dodać, oto zadanie na poniedzialek!!!!!!!
         inw3 = sorted(inw3, key=itemgetter('index_tkaniny'))
         
         dlPerIndeks = 0
@@ -395,8 +404,8 @@ def magazyn_inwentura_grupowana(request):
                 else:
                     dlPerIndeks=0
                     dlPerIndeks_inw = 0
-                
                 i['dlPerIndeks']=dlPerIndeks
+                
                 i['dlPerIndeks_inw']=dlPerIndeks_inw
             else:
                 i['isPrinted']=False
@@ -413,11 +422,13 @@ def magazyn_inwentura_grupowana(request):
             #przeniesc do czesci ze zmiana ind_old
             for j in filter(lambda x: x['index_tkaniny'] == ind_old, inw3):
                 #if j['index_tkaniny']==int(ind_old):
-                j['dlPerIndeks']=round(dlPerIndeks,2)
+                #j['dlPerIndeks']=round(dlPerIndeks,2)
+                #j['dlPerIndeks']=round(dlPerIndeks,2)
+                j['dlPerIndeks']=Tkanina.objects.get(index_sap=j['index_tkaniny']).ilosc_na_magazynie() ### NA RAZIE NA SZTYWNO, POTEM DODAJ ZLICZANIE
                 j['dlPerIndeks_inw']=round(dlPerIndeks_inw,2)
-                
             
-        #SPRAWDZIC POSZCZEGOLNE WARIANTY - DZIALA INWENTURA ARCH, NIE WIADOMO JAK Z BIEZACA INW. i POZOSTALE
+        
+    #SPRAWDZIC POSZCZEGOLNE WARIANTY - DZIALA INWENTURA ARCH, NIE WIADOMO JAK Z BIEZACA INW. i POZOSTALE
 
 
         if status:
