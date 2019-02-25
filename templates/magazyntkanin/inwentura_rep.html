@@ -88,13 +88,21 @@
 		</tr>
 		<tr>
 		{% endfor %}
+                </div>
+		</form>
 	        </tbody>
 		<tfoot>
 		<tr><td>
 			<a href="http://jan-svr-docker:8000/magazyn/inw_pdf">DRUKUJ OSTATNIO WYGENEROWANY RAPORT</a>
 
 		</td></tr>
+		<tr><td>
+			
+			<a href="http://jan-svr-docker:8000/magazyn/czysc_zliczanie/{{inw}}">CZYSC ZLICZANIE</a>
+
+		</td></tr>
 		</tfoot>
+			
         </table>
     </div>
 </div>
