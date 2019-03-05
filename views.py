@@ -296,7 +296,7 @@ def magazyn_inwentura_grupowana(request):
            
 
         if index_tkaniny:
-            if (status and int(status)<2) or status=='':
+            if ( status!='' and int(status)<2) or status=='':
                 inw = Log.objects.filter(index_tkaniny__startswith=index_tkaniny).order_by('rolka_id','-timestamp').distinct('rolka_id')
                 typ_inwentury="INWENTURA"
             elif int(status)==2:
@@ -332,7 +332,7 @@ def magazyn_inwentura_grupowana(request):
                 inw = Log.objects.filter(index_tkaniny__startswith=index_tkaniny,typ=typ_inwentury).order_by('rolka_id','-timestamp').distinct('rolka_id')
     
         else:
-            if (status and int(status)<2) or status=='':
+            if (status!='' and  int(status)<2) or status=='':
                 typ_inwentury="INWENTURA"
                 inw = Log.objects.order_by('rolka_id','-timestamp').distinct('rolka_id')
             elif int(status)==2:
@@ -433,7 +433,7 @@ def magazyn_inwentura_grupowana(request):
 
         if status:
             ind_o = 0
-            if int(status)<=2:
+            if int(status)<1:
                 inw3 = [x for x in inw3 if x['typ'] != typ_inwentury ]
             else:
                 inw3 = [x for x in inw3 if x['typ'] == typ_inwentury ]
