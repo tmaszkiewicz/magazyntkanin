@@ -389,8 +389,6 @@ def magazyn_inwentura_grupowana(request):
         dlPerIndeks_inw = 0
         #ZLICZAMY DLUGOSC INDEKSU 
         for i in inw3:
-
-            
             if ind_old != i['index_tkaniny']:
                 
                 dlPerIndeks_inw = 0
@@ -420,11 +418,17 @@ def magazyn_inwentura_grupowana(request):
                 
             ind_old=i['index_tkaniny']
             #przeniesc do czesci ze zmiana ind_old
+            ilosc_= Tkanina.objects.get(index_sap=ind_old).ilosc_na_magazynie()
             for j in filter(lambda x: x['index_tkaniny'] == ind_old, inw3):
-                #if j['index_tkaniny']==int(ind_old):
-                #j['dlPerIndeks']=round(dlPerIndeks,2)
-                #j['dlPerIndeks']=round(dlPerIndeks,2)
-                j['dlPerIndeks']=Tkanina.objects.get(index_sap=j['index_tkaniny']).ilosc_na_magazynie() ### NA RAZIE NA SZTYWNO, POTEM DODAJ ZLICZANIE
+
+                # Nastepny wiersz  należaloby zoptymalizowac, bo zjada mnostwo czasu !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+                #j['dlPerIndeks']=Tkanina.objects.get(index_sap=j['index_tkaniny']).ilosc_na_magazynie() ### NA RAZIE NA SZTYWNO, POTEM DODAJ ZLICZANIE
+                #j['dlPerIndeks']=Tkanina.objects.get(index_sap=ind_old).ilosc_na_magazynie() ### NA RAZIE NA SZTYWNO, POTEM DODAJ ZLICZANIE
+                j['dlPerIndeks']=ilosc_
+                #j['dlPerIndeks']=Tkanina.objects.filter(index_sap=ind_old).aggregate(Sum('dlugosc')) ### NA RAZIE NA SZTYWNO, POTEM DODAJ ZLICZANIE
+                
+
+                # wlasnie ten powyzej !!!!!!!
                 j['dlPerIndeks_inw']=round(dlPerIndeks_inw,2)
             
         
@@ -452,6 +456,7 @@ def magazyn_inwentura_grupowana(request):
         functions.generuj_raport_inwentury2(inw3)
         functions.generuj_raport_xls(inw3)
         context['inw'] = inw3
+        context['status'] = status
         return render(request, url, context)
     return render(request, url, context)
 
@@ -2152,3 +2157,16 @@ def log_info(request):
                 return_string = return_string + line + '\n------------\n'
         return HttpResponse(return_string)
     return HttpResponse("")
+
+def czysc_zliczanie(request):
+    url='magazyntkanin/inwentura_rep.html'
+    context = {
+    }
+    rolka = Rolka_zliczana.objects.all()   
+    if request.method == 'GET':
+        for i in rolka:
+            if request.GET.get(str(i.pk))=="on":
+                Rolka_zliczana.objects.filter(pk=i.pk).delete()
+                
+
+    return render(request,url,context)

@@ -418,11 +418,12 @@ def generuj_raport_inwentury2(inw):
             except:
                 None
 
-        if(row > (rowsForPage - 30)): 
+        if row % rowsForPage >= 690: 
             c.showPage()
             c.setFont("Times-Bold", 8)
             page+=1
             c.drawString(width/2-4, 10, "str. "+str(page))
+            row=10
 
 
 
@@ -716,9 +717,9 @@ def generuj_etykiete_tkaniny(nazwa_tkaniny, barcode=[], L='', R='', data_dostawy
     c.save()
 
 def generuj_etykiete_tkaniny_podwojna(nazwa_tkaniny, barcode=[], L='', R='', data_dostawy='', M='', szerokosc=''):
-    shift = 3.4  #4.4  #5.4
-    l_shift = 0.7 
-    c = canvas.Canvas("tmp/etykieta_podwojna.pdf", pagesize=(8.9 * cm, (5.4+shift) * cm))
+    shift = 4.8  #4.4  #5.4
+    l_shift = 0.9 #0.7 
+    c = canvas.Canvas("tmp/etykieta_podwojna.pdf", pagesize=(8.8 * cm, (5.4+shift) * cm))
     ilosc = len(barcode)
     for i, etykieta in enumerate(range(ilosc)):
         if len(nazwa_tkaniny) < 15:
@@ -727,45 +728,45 @@ def generuj_etykiete_tkaniny_podwojna(nazwa_tkaniny, barcode=[], L='', R='', dat
             c.setFont('Courier-Bold', size=18)
         else:
             c.setFont('Courier-Bold', size=14)
-        c.drawCentredString((3.9+l_shift) * cm, (4.5+shift) * cm, nazwa_tkaniny)
+        c.drawCentredString((3.9+l_shift) * cm, (4.5+shift-1) * cm, nazwa_tkaniny)
         qr_code = qr.QrCodeWidget(barcode[i])
         bounds = qr_code.getBounds()
         width = bounds[2] - bounds[0]
         height = bounds[3] - bounds[1]
         d = Drawing(60, 60, transform=[60. / width, 0, 0, 60. / height, 0, 0])
         d.add(qr_code)
-        renderPDF.draw(d, c, (2.8+l_shift) * cm, (2+shift) * cm)
+        renderPDF.draw(d, c, (2.8+l_shift) * cm, (2+shift-1) * cm)
         c.setFont('Courier-Bold', size=10)
-        c.drawString((3.5+l_shift) * cm, (3.9+shift) * cm, barcode[i])
+        c.drawString((3.5+l_shift) * cm, (3.9+shift-1) * cm, barcode[i])
         c.setFont('Courier-Bold', size=18)
-        c.drawString((0.2+l_shift) * cm, (3.2+shift) * cm, 'L:')
+        c.drawString((0.2+l_shift) * cm, (3.2+shift-1) * cm, 'L:')
         c.setFont('Courier-Bold', size=14)
-        c.drawString((1.1+l_shift) * cm, (3.2+shift) * cm, L)
-        c.drawString((1.1+l_shift) * cm, (3.2+shift) * cm, "_____")
+        c.drawString((1.1+l_shift) * cm, (3.2+shift-1) * cm, L)
+        c.drawString((1.1+l_shift) * cm, (3.2+shift-1) * cm, "_____")
         c.setFont('Courier-Bold', size=18)
-        c.drawString((0.2+l_shift) * cm, (1.7+shift) * cm, 'R:')
+        c.drawString((0.2+l_shift) * cm, (1.7+shift-1) * cm, 'R:')
         c.setFont('Courier-Bold', size=14)
-        c.drawString((1.1+l_shift) * cm, (1.7+shift) * cm, R)
-        c.drawString((1.1+l_shift) * cm, (1.7+shift) * cm, "_____")
+        c.drawString((1.1+l_shift) * cm, (1.7+shift-1) * cm, R)
+        c.drawString((1.1+l_shift) * cm, (1.7+shift-1) * cm, "_____")
         c.setFont('Courier-Bold', size=18)
-        c.drawString((4.8+l_shift) * cm, (3.2+shift) * cm, 'M:')
+        c.drawString((4.8+l_shift) * cm, (3.2+shift-1) * cm, 'M:')
         c.setFont('Courier-Bold', size=14)
         if not M == '':
-            c.drawString((5.6+l_shift) * cm, (3.2+shift) * cm, str(float(M)) + ' m')
-        c.drawString((5.6+l_shift) * cm, (3.2+shift) * cm, "_____")
+            c.drawString((5.6+l_shift) * cm, (3.2+shift-1) * cm, str(float(M)) + ' m')
+        c.drawString((5.6+l_shift) * cm, (3.2+shift-1) * cm, "_____")
         c.setFont('Courier-Bold', size=18)
-        c.drawString((4.4+l_shift) * cm, (1.7+shift) * cm, 'SZ:')
+        c.drawString((4.4+l_shift) * cm, (1.7+shift-1) * cm, 'SZ:')
         c.setFont('Courier-Bold', size=14)
         if not szerokosc == '':
-            c.drawString((5.6+l_shift) * cm, (1.7+shift) * cm, str(szerokosc) + ' mm')
-        c.drawString((5.6+l_shift) * cm, (1.7+shift) * cm, "_____")
+            c.drawString((5.6+l_shift) * cm, (1.7+shift-1) * cm, str(szerokosc) + ' mm')
+        c.drawString((5.6+l_shift) * cm, (1.7+shift-1) * cm, "_____")
         c.setFont('Courier-Bold', size=18)
-        c.drawString((1.87+l_shift) * cm, (0.9+shift) * cm, 'Data:')
+        c.drawString((1.87+l_shift) * cm, (0.9+shift-1) * cm, 'Data:')
         c.setFont('Courier-Bold', size=14)
         if isinstance(data_dostawy, datetime):
-            c.drawString((3.9+l_shift) * cm, (0.9+shift) * cm, data_dostawy.strftime("%d/%m/%Y"))
+            c.drawString((3.9+l_shift) * cm, (0.9+shift-1) * cm, data_dostawy.strftime("%d/%m/%Y"))
         else:
-            c.drawString((3.9+l_shift) * cm, (0.9+shift) * cm, data_dostawy)
+            c.drawString((3.9+l_shift) * cm, (0.9+shift-1) * cm, data_dostawy)
 
         #dodanie kodu ponizej  Tomek 19.11.2018
         
@@ -776,7 +777,13 @@ def generuj_etykiete_tkaniny_podwojna(nazwa_tkaniny, barcode=[], L='', R='', dat
         height = bounds[3] - bounds[1]
         d = Drawing(60, 60, transform=[60. / width, 0, 0, 60. / height, 0, 0])
         d.add(qr_code)
-        renderPDF.draw(d, c, (2.8+l_shift) * cm, 0 * cm)
+        #renderPDF.draw(d, c, (2.8+l_shift) * cm, 0 * cm)
+        c.setFont('Courier-Bold', size=10)
+        c.drawString((0.8+l_shift) * cm, 2.3 * cm, barcode[i])
+        c.drawString((5.4+l_shift) * cm, 2.3 * cm, barcode[i])
+        #c.drawString((4.9+l_shift) * cm, 1,5 * cm, barcode[i])
+        renderPDF.draw(d, c, (0.2+l_shift) * cm, 0.4 * cm)
+        renderPDF.draw(d, c, (4.8+l_shift) * cm, 0.4 * cm)
 
         #eanbc_code = eanbc.Ean8BarcodeWidget(barcode[i])
         #bounds = eanbc_code.getBounds()
