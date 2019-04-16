@@ -1,6 +1,9 @@
 {% extends "magazyntkanin/base.html" %}
 
+{% block head %}
 
+</script>
+{% endblock head %}
 {% block body %}
 <div class="row" style="margin-top: 80px;">
     <div class="col-xs-2 col-sm-2 col-md-2 col-lg-2">
@@ -20,8 +23,8 @@
                 <label for="status">Status</label>                 
                 <select name="status" class="form-control">
                     <option value="">-----</option>
-                    <option value="0">INWENTURA</option>
-                    <option value="1">POZOSTAŁE</option>
+                    <option value="0">POZOSTAŁE</option>
+                    <option value="1">INWENTURA</option>
                     <option value="2">DO_USUNIECIA</option>
                     <option value="3">ZLICZANIE OKRESOWE</option>
                     <option value="4">INWENTURA_22122018</option>
@@ -37,19 +40,29 @@
     </div>
     
 </div>
+
 <div class="row" style="margin-top: 80px;">
     <div class="col-xs-1 col-sm-1 col-md-1 col-lg-1" style="margin-top: 50px;">
     </div>
     <div class="col-xs-10 col-sm-10 col-md-10 col-lg-10">
+
+    <form action="{% url 'magazyntkanin:czysc_zliczanie' %}" method="GET" role="form">
+
+
         <h2>Znaleziono {{wpisy.count}} wpisów:</h2>        
-        <table class="table table-hover">
+        <table class="table table-hover" id="t1">
             <thead>
                 <tr>
                     <th>Tkanina</th>
                     <th>ID rolki</th>
+		    {%if status != '3' %}
                     <th>Ilosc przed</th>
+		    {% endif %}
                     <th>Ilosc po</th>
-                    <th>Skorygowano</th>
+
+		    {%if status != '3' %}
+                   	 <th>Skorygowano</th>
+		    {% endif %}
                 <!--    <th>Typ</th> -->
                 </tr>
             </thead>
@@ -79,16 +92,29 @@
 			{% endif %}
 
 			<td> {{ i.rolka_id }}</td>
-			<td> {{ i.dlugosc_rolki}}</td>
+
+			{%if status != '3' %}
+				<td> {{ i.dlugosc_rolki}}</td>
+			{% endif %}
 			<td> {{ i.dlugosc_elementu}}</td>
-			<td> {{i.timestamp}}</td>
+			{%if status != '3' %}
+				<td> {{i.timestamp}}</td>
+			{% endif %}
+			{%if status == '3' %}							
+				<td><input class="form-control" type="checkbox" name={{i.rolka_id}} id={{i.rolka_id}}></td>
+			{% endif %}
 	<!--		<td> {{i.typ}}</td>  
 
 			<td> {{i.dlPerIndeks}}</td>			
 			<td> {{i.dlPerIndeks_inw}}</td>			-->
 		</tr>
 		<tr>
+		<script type="text/javascript">
+			var check=document.getElementById({{i.rolka_id}});
+			check.checked=true;
+		</script>
 		{% endfor %}
+
                 </div>
 		</form>
 	        </tbody>
@@ -98,13 +124,16 @@
 
 		</td></tr>
 		<tr><td>
-			
-			<a href="http://jan-svr-docker:8000/magazyn/czysc_zliczanie/{{inw}}">CZYSC ZLICZANIE</a>
-
+                    <button type="submit" class="btn btn-primary">Wyczysc</button>                
 		</td></tr>
 		</tfoot>
+		
 			
         </table>
+    </form>
     </div>
+
 </div>
+
 {% endblock body %}
+

@@ -307,12 +307,76 @@ def generuj_raport_xls(inw):
         row+=1
 
 
-    wb.save('inw-'+datetime.datetime.now().strftime("%Y-%m-%d-%H-%M")+'.xlsx')
+    wb.save('tmp/inw-'+datetime.datetime.now().strftime("%Y-%m-%d-%H-%M")+'.xlsx')
     #wb.save('inw.xlsx')
 
 
     return HttpResponse("OK")
+def generuj_xls_porownanie_sap(inw):
+    import datetime
+    from openpyxl import Workbook
+    wb = Workbook()
+    ws = wb.active
+    ws.title = "INW"
+    row=1
+    for i in inw:
+        if  i['isPrinted']:
+            cell = "A" + str(row)
+            try:
+                ws[cell] = i['nazwa_tkaniny']
+            except:
+                None
+            cell = "B" + str(row)
+            try:
+                ws[cell] = i['index_tkaniny']
+            except:
+                None
+            cell = "C" + str(row)
+            try:
+                ws[cell] = i['rolka_id']
+            except:
+                None
+            cell = "D" + str(row)
+            try:
+                ws[cell] = i['dlugosc_rolki']
+            except:
+                None
+            cell = "E" + str(row)
+            try:
+                ws[cell] = i['dlugosc_elementu']
+            except:
+                None
+            
+            cell = "F" + str(row)
+            try:
+                ws[cell] = i['dlPerIndeks']
+            except:
+                None
+            cell = "G" + str(row)
+            try:
+                ws[cell] = i['dlPerIndeks_inw']
+            except:
+                None
+            cell = "H" + str(row)
+            try:
+                ws[cell] = i['isPrinted']
+            except:
+                None
+            cell = "I" + str(row)
+            try:
+                ws[cell] = i['typ']
+            except:
+                None
+            cell = "J" + str(row)
+            try:
+                ws[cell] = i['timestamp']
+            except:
+                None
+            row+=1
 
+
+    wb.save('tmp/inw-'+datetime.datetime.now().strftime("%Y-%m-%d-%H-%M")+'.xlsx')
+    #wb.save('inw.xlsx')
 
 def generuj_raport_inwentury2(inw):
 
@@ -456,6 +520,251 @@ def generuj_raport_inwentury2(inw):
     c.showPage()
     c.save()
 
+def generuj_obiegowke_v1(
+    id="",
+    index="",
+    nazwa_tkaniny="",
+    lot="",
+    rolka="",
+    data_zamowienia="",
+    szerokosc="",
+    dlugosc="",
+    qr_draw=False,
+    full=False
+    ):
+    # -*- coding: utf-8 -*-
+    from reportlab.platypus import Table, TableStyle, Paragraph
+    from reportlab.lib import colors
+
+    from reportlab.pdfgen import canvas
+    from reportlab.lib.pagesizes import A5
+    from reportlab.pdfbase import pdfmetrics
+    from reportlab.pdfbase.ttfonts import TTFont
+    from reportlab.lib.styles import getSampleStyleSheet
+    from reportlab.graphics.barcode import qr
+    from reportlab.graphics.shapes import Drawing
+    from reportlab.graphics import renderPDF
+    wiersz=0
+    strnr=1
+    c = canvas.Canvas('tmp/obiegowka.pdf', pagesize=A5)
+    width, height = A5
+    # dodanie czcionek
+    pdfmetrics.registerFont(TTFont('AlegreyaSC', 'magazyntkanin/static/fonts/Alegreya_SC/AlegreyaSC-Bold.ttf'))
+
+    index = index
+    nazwa_sap = nazwa_tkaniny
+    lot = lot
+    rolka = rolka
+    data_zamowienia = str(data_zamowienia)
+    # if isinstance(data_zamowienia, datetime):
+    #     data_zamowienia = data_zamowienia.strftime("%d/%m/%Y")
+    if data_zamowienia == "None":
+        data_zamowienia = ""
+    szerokosc = szerokosc
+    dlugosc = dlugosc
+
+    #QR
+    if qr_draw == True:
+        qr_code = qr.QrCodeWidget(str(id))
+        d = Drawing(45, 45)
+        d.add(qr_code)
+        d.wrap(45,45)
+        d.drawOn(c, width-90, height-90)
+        c.setFont("Times-Bold", 10)
+        c.drawString(width-55, height-90, str(id))
+
+    # paragraf
+    stylesheet=getSampleStyleSheet()
+    styleN = stylesheet['Normal']
+    styleN.fontSize = 17
+    p = Paragraph(u'<para align="center"><b>Karta obiegowa tkaniny w Janipolu</b></para>', styleN)
+    w,h = p.wrap(width-100, 200)
+    p.drawOn(c, 5, height-20)
+
+    # -------------------------------
+    data = []
+    data.append(['Index', index])
+    data.append(['Nazwa tkaniny', nazwa_sap])
+    t=Table(data, [100, 220])
+    t.setStyle(TableStyle([('FONT', (0,0), (0,-1), 'AlegreyaSC', 9),
+                        ('ALIGN', (0,0), (-1,-1), 'LEFT'),
+                        ('GRID', (0,0), (-1,-1), 1, colors.black),
+                        # ('BACKGROUND', (0, 0), (0, 1), colors.lightgrey),
+                    ]))
+    w,h = t.wrap(width, height)
+    t.drawOn(c, 10, (height-75))
+
+    # -------------------------------
+    data = []
+    data.append(['Lot', lot])
+    data.append(['Nr Rolki', rolka])
+    c.setFont("Times-Bold", 10)
+    c.drawString(width-150, height-150, "DATA: " + data_zamowienia)
+    t=Table(data, [110, 70])
+    t.setStyle(TableStyle([('FONT', (0,0), (0,-1), 'AlegreyaSC', 9),
+                        ('ALIGN', (0,0), (-1,-1), 'LEFT'),
+                        ('GRID', (0,0), (-1,-1), 0.25, colors.black),
+                        # ('BACKGROUND', (0, 0), (0, 1), colors.lightgrey),
+                    ]))
+    w,h = t.wrap(width, height)
+    t.drawOn(c, 10, (height-150))
+
+    # -------------------------------
+    data = []
+    data.append(['Ogólna szerokość (mm)', szerokosc])
+    data.append(['Krajka lewa', ""])
+    data.append(['Krajka prawa', ""])
+    data.append(['Szer. do krojenia', ""])
+    t=Table(data, [110, 70])
+    t.setStyle(TableStyle([('FONT', (0,0), (0,-1), 'AlegreyaSC', 9),
+                        ('ALIGN', (0,0), (-1,-1), 'LEFT'),
+                        ('GRID', (0,0), (-1,-1), 0.25, colors.black),
+                        # ('BACKGROUND', (0, 0), (0, 3), colors.lightgrey),
+                    ]))
+    w,h = t.wrap(width, height)
+    t.drawOn(c, 10, (height-225))
+
+    # -------------------------------
+    data = []
+    data.append(['Długość (mb)', dlugosc])
+    t=Table(data, [70, 50])
+    t.setStyle(TableStyle([('FONT', (0,0), (0,-1), 'AlegreyaSC', 9),
+                        ('ALIGN', (0,0), (-1,-1), 'LEFT'),
+                        ('GRID', (0,0), (-1,-1), 0.25, colors.black),
+                        # ('BACKGROUND', (0, 0), (0, 1), colors.lightgrey),
+                    ]))
+    w,h = t.wrap(width, height)
+    t.drawOn(c, 290, (height-250))
+
+    # -------------------------------
+    data = []
+    data.append(['Data', 'Nazwa układu', 'C/R', 'Podpis', 'Zużyto', 'Zwrócono'])
+    wiersz =12
+
+    if full:
+        #wpisy = Log.objects.filter(rolka_id=id, typ__startswith="FGK")
+        wpisy = Log.objects.filter(rolka_id=id)
+        for each in wpisy:
+            
+            try:
+                nrfgk=each.nr_fgk
+                if not each.nr_fgk:
+                    nrfgk=each.typ
+
+            except:
+                nrfgk=""
+            try:
+                dlrolki=each.dlugosc_rolki
+                if not each.dlugosc_rolki:
+                    dlrolki=0            
+            except:
+                dlrolki = 0
+            try:
+                dlelementu=each.dlugosc_elementu
+                if not each.dlugosc_elementu:
+                    dlelementu=0            
+            except:
+                dlelementu = 0
+        
+
+
+
+            data.append([each.timestamp.strftime('%d-%m-%Y'), nrfgk, rolka, '', dlelementu, round(dlrolki-dlelementu, 2)])
+        for i in range(13-wpisy.count()):
+            data.append(['', '', '', '', '', ''])
+    else:
+        data.append(['', '', '', '', '', ''])
+        data.append(['', '', '', '', '', ''])
+        data.append(['', '', '', '', '', ''])
+        data.append(['', '', '', '', '', ''])
+        data.append(['', '', '', '', '', ''])
+        data.append(['', '', '', '', '', ''])
+        data.append(['', '', '', '', '', ''])
+        data.append(['', '', '', '', '', ''])
+        data.append(['', '', '', '', '', ''])
+        data.append(['', '', '', '', '', ''])
+        data.append(['', '', '', '', '', ''])
+        data.append(['', '', '', '', '', ''])
+        data.append(['', '', '', '', '', ''])
+    wiersz = 0 
+    dat = []
+    for i in data:
+        wiersz+=1
+        if strnr==1:
+            rowPerPage=14
+        else:
+            rowPerPage=24
+        dat.append(i)
+        if wiersz % rowPerPage==0:  
+            wiersz = 0
+            strnr+=1
+            try:
+                t=Table(dat, [50, 130, 50, 70, 50, 50],rowHeights=23)
+                t.setStyle(TableStyle([('FONT', (0,0), (-1,0), 'AlegreyaSC', 9),
+                                    ('FONT', (0,1), (-1,-1), 'Times-Roman', 9),
+                                    ('ALIGN', (0,0), (-1,-1), 'CENTER'),
+                                    ('VALIGN', (0,0), (-1,-1), 'MIDDLE'),
+                                    ('GRID', (0,0), (-1,-1), 0.25, colors.black),
+                                ]))
+                w,h = t.wrap(width, 300)
+                t.drawOn(c, 10, 20)
+            except:
+                None
+
+            # -------------------------------
+            c.setFont("Times-Bold", 8)
+            c.drawString(100, 10, "ME05")
+            c.drawString(width-125, 10, "Dane w [mm]"+str(wiersz))
+            dat = []
+
+            # zapis do pliku
+            c.showPage()
+    #print(dat)
+    
+    while wiersz % rowPerPage!=0:
+        wiersz+=1
+        dat.append(['', '', '', '', '', ''])        
+
+
+    try:
+        t=Table(dat, [50, 130, 50, 70, 50, 50],rowHeights=23)
+        t.setStyle(TableStyle([('FONT', (0,0), (-1,0), 'AlegreyaSC', 9),
+                            ('FONT', (0,1), (-1,-1), 'Times-Roman', 9),
+                            ('ALIGN', (0,0), (-1,-1), 'CENTER'),
+                            ('VALIGN', (0,0), (-1,-1), 'MIDDLE'),
+                            ('GRID', (0,0), (-1,-1), 0.25, colors.black),
+                        ]))
+        w,h = t.wrap(width, 300)
+        t.drawOn(c, 10, 20)
+    except:
+        None
+
+    # -------------------------------
+    c.setFont("Times-Bold", 8)
+    c.drawString(100, 10, "ME05")
+    c.drawString(width-125, 10, "Dane w [mm]"+str(wiersz))
+    dat = []
+
+    #!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    #t=Table(dat, [50, 130, 50, 70, 50, 50],rowHeights=23)
+    #t.setStyle(TableStyle([('FONT', (0,0), (-1,0), 'AlegreyaSC', 9),
+    #                    ('FONT', (0,1), (-1,-1), 'Times-Roman', 9),
+    #                    ('ALIGN', (0,0), (-1,-1), 'CENTER'),
+    #                    ('VALIGN', (0,0), (-1,-1), 'MIDDLE'),
+    #                    ('GRID', (0,0), (-1,-1), 0.25, colors.black),
+    #                ]))
+    #w,h = t.wrap(width, 300)
+    #t.drawOn(c, 10, 20)
+
+    # -------------------------------
+    #c.setFont("Times-Bold", 8)
+    #c.drawString(100, 10, "ME05")
+    #c.drawString(width-125, 10, "Dane w [mm]"+str(wiersz))
+
+    # zapis do pliku
+    c.showPage()
+
+    c.save()
 def generuj_obigowke(
     id="",
     index="",
@@ -717,56 +1026,73 @@ def generuj_etykiete_tkaniny(nazwa_tkaniny, barcode=[], L='', R='', data_dostawy
     c.save()
 
 def generuj_etykiete_tkaniny_podwojna(nazwa_tkaniny, barcode=[], L='', R='', data_dostawy='', M='', szerokosc=''):
+    pegewidth=8.8
     shift = 4.8  #4.4  #5.4
-    l_shift = 0.9 #0.7 
-    c = canvas.Canvas("tmp/etykieta_podwojna.pdf", pagesize=(8.8 * cm, (5.4+shift) * cm))
+    pageheight = 5.4+shift # 10.2
+    qrsize = 1.0
+
+    l_shift = 0.3 #0.7 
+    c = canvas.Canvas("tmp/etykieta_podwojna.pdf", pagesize=(pegewidth * cm, pageheight * cm))
     ilosc = len(barcode)
+    #DZIELIMY NA NAZWE I KOLOR
+    nazwa_tkaniny=nazwa_tkaniny.split(sep=" ")
     for i, etykieta in enumerate(range(ilosc)):
-        if len(nazwa_tkaniny) < 15:
-            c.setFont('Courier-Bold', size=24)
-        elif len(nazwa_tkaniny) > 15 and len(nazwa_tkaniny) < 20:
-            c.setFont('Courier-Bold', size=18)
+        print(len(nazwa_tkaniny[0]))
+
+        if len(nazwa_tkaniny[0]) <14  and len(nazwa_tkaniny[0]) < 14:
+            c.setFont('Courier-Bold', size=28)
+
+        elif (len(nazwa_tkaniny[0])>=14 or len(nazwa_tkaniny[1])>=14)  and len(nazwa_tkaniny[0]) < 20 and len(nazwa_tkaniny[1]) < 20:
+            c.setFont('Courier-Bold', size=20)
         else:
-            c.setFont('Courier-Bold', size=14)
-        c.drawCentredString((3.9+l_shift) * cm, (4.5+shift-1) * cm, nazwa_tkaniny)
+            c.setFont('Courier-Bold', size=18)
+
+        #NAZWA      
+        c.drawCentredString((pegewidth/2) * cm, (4.5+shift-0.5) * cm, nazwa_tkaniny[0])
+        #KOLOR
+        c.drawCentredString((pegewidth/2) * cm, (4.5+shift-1.5) * cm, nazwa_tkaniny[1])
+
         qr_code = qr.QrCodeWidget(barcode[i])
         bounds = qr_code.getBounds()
         width = bounds[2] - bounds[0]
         height = bounds[3] - bounds[1]
         d = Drawing(60, 60, transform=[60. / width, 0, 0, 60. / height, 0, 0])
         d.add(qr_code)
-        renderPDF.draw(d, c, (2.8+l_shift) * cm, (2+shift-1) * cm)
+        renderPDF.draw(d, c, (pegewidth/2 - 2/2-0.5) * cm, (2+shift-2.0) * cm)
+
         c.setFont('Courier-Bold', size=10)
-        c.drawString((3.5+l_shift) * cm, (3.9+shift-1) * cm, barcode[i])
-        c.setFont('Courier-Bold', size=18)
-        c.drawString((0.2+l_shift) * cm, (3.2+shift-1) * cm, 'L:')
+        c.drawCentredString((pegewidth/2+0.1-0.5) * cm, (3.9+shift-2.0) * cm, barcode[i])
+
+        c.setFont('Courier-Bold', size=20)
+        c.drawString((0.2+l_shift) * cm, (3.2+shift-1.5) * cm, 'L:')
         c.setFont('Courier-Bold', size=14)
-        c.drawString((1.1+l_shift) * cm, (3.2+shift-1) * cm, L)
-        c.drawString((1.1+l_shift) * cm, (3.2+shift-1) * cm, "_____")
-        c.setFont('Courier-Bold', size=18)
-        c.drawString((0.2+l_shift) * cm, (1.7+shift-1) * cm, 'R:')
+        c.drawString((1.1+l_shift) * cm, (3.2+shift-1.5) * cm, L)
+        c.drawString((1.1+l_shift) * cm, (3.2+shift-1.5) * cm, "_____")
+        c.setFont('Courier-Bold', size=20)
+        c.drawString((0.2+l_shift) * cm, (1.7+shift-1.5) * cm, 'R:')
         c.setFont('Courier-Bold', size=14)
-        c.drawString((1.1+l_shift) * cm, (1.7+shift-1) * cm, R)
-        c.drawString((1.1+l_shift) * cm, (1.7+shift-1) * cm, "_____")
-        c.setFont('Courier-Bold', size=18)
-        c.drawString((4.8+l_shift) * cm, (3.2+shift-1) * cm, 'M:')
+        c.drawString((1.1+l_shift) * cm, (1.7+shift-1.5) * cm, R)
+        c.drawString((1.1+l_shift) * cm, (1.7+shift-1.5) * cm, "_____")
+        c.setFont('Courier-Bold', size=20)
+        c.drawString((5.0+l_shift) * cm, (3.2+shift-1.5) * cm, 'M:')
         c.setFont('Courier-Bold', size=14)
         if not M == '':
-            c.drawString((5.6+l_shift) * cm, (3.2+shift-1) * cm, str(float(M)) + ' m')
-        c.drawString((5.6+l_shift) * cm, (3.2+shift-1) * cm, "_____")
-        c.setFont('Courier-Bold', size=18)
-        c.drawString((4.4+l_shift) * cm, (1.7+shift-1) * cm, 'SZ:')
+            c.drawString((5.8+l_shift) * cm, (3.2+shift-1.5) * cm, str(float(M)) + ' m')
+        c.drawString((5.8+l_shift) * cm, (3.2+shift-1.5) * cm, "______")
+        c.setFont('Courier-Bold', size=20)
+        c.drawString((4.6+l_shift) * cm, (1.7+shift-1.5) * cm, 'SZ:')
         c.setFont('Courier-Bold', size=14)
         if not szerokosc == '':
-            c.drawString((5.6+l_shift) * cm, (1.7+shift-1) * cm, str(szerokosc) + ' mm')
-        c.drawString((5.6+l_shift) * cm, (1.7+shift-1) * cm, "_____")
+            c.drawString((5.8+l_shift) * cm, (1.7+shift-1.5) * cm, str(szerokosc) + 'mm')
+        c.drawString((5.8+l_shift) * cm, (1.7+shift-1.5) * cm, "______")
+        c.setFont('Courier-Bold', size=20)
+                     #1.87
+        c.drawString((1.2+l_shift) * cm, (0.9+shift-2.0) * cm, 'Data:')
         c.setFont('Courier-Bold', size=18)
-        c.drawString((1.87+l_shift) * cm, (0.9+shift-1) * cm, 'Data:')
-        c.setFont('Courier-Bold', size=14)
         if isinstance(data_dostawy, datetime):
-            c.drawString((3.9+l_shift) * cm, (0.9+shift-1) * cm, data_dostawy.strftime("%d/%m/%Y"))
+            c.drawString((3.4+l_shift) * cm, (0.9+shift-2.0) * cm, data_dostawy.strftime("%d/%m/%Y"))
         else:
-            c.drawString((3.9+l_shift) * cm, (0.9+shift-1) * cm, data_dostawy)
+            c.drawString((3.4+l_shift) * cm, (0.9+shift-2.0) * cm, data_dostawy)
 
         #dodanie kodu ponizej  Tomek 19.11.2018
         
@@ -779,11 +1105,11 @@ def generuj_etykiete_tkaniny_podwojna(nazwa_tkaniny, barcode=[], L='', R='', dat
         d.add(qr_code)
         #renderPDF.draw(d, c, (2.8+l_shift) * cm, 0 * cm)
         c.setFont('Courier-Bold', size=10)
-        c.drawString((0.8+l_shift) * cm, 2.3 * cm, barcode[i])
-        c.drawString((5.4+l_shift) * cm, 2.3 * cm, barcode[i])
+        c.drawString((0.5+l_shift) * cm, 2.3 * cm, barcode[i])
+        c.drawString((5.7+l_shift) * cm, 2.3 * cm, barcode[i])
         #c.drawString((4.9+l_shift) * cm, 1,5 * cm, barcode[i])
-        renderPDF.draw(d, c, (0.2+l_shift) * cm, 0.4 * cm)
-        renderPDF.draw(d, c, (4.8+l_shift) * cm, 0.4 * cm)
+        renderPDF.draw(d, c, (0.0+l_shift) * cm, 0.4 * cm)
+        renderPDF.draw(d, c, (5.2+l_shift) * cm, 0.4 * cm)
 
         #eanbc_code = eanbc.Ean8BarcodeWidget(barcode[i])
         #bounds = eanbc_code.getBounds()
@@ -819,7 +1145,8 @@ def Bezposredni_wydruk(Rolka):
     generuj_etykiete_tkaniny(nazwa_tkaniny, barcode, str(
         L), str(R), data_dostawy, str(M))
     call(['/etc/init.d/cups start'], shell=True)
-    call(['lp tmp/etykieta.pdf'], shell=True)
+    #call(['lp tmp/etykieta.pdf'], shell=True)
+    call(['lp tmp/etykieta_podwojna.pdf'], shell=True)
     call(['lp -djan-pr-mm01 -o portrait -o fit-to-page -o media=A5 tmp/obiegowka.pdf'], shell=True)
 
 def odczytaj_csv(plik_path=os.path.join('.', 'dzienniki')):

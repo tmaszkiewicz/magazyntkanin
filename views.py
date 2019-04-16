@@ -44,20 +44,30 @@ def sprawdz_dzial(request):
     if re.search('krojownia', request.path):
         return 'krojownia'
     return 'magazyn'
+
+def edytuj_rolke_(request, nr_rolki,user):
+    rolka = Rolka.objects.get(pk=nr_rolki)
+    rolka_old =rolka.dlugosc
+    print(user)
+    return edytuj_rolke(request,nr_rolki,rolka_old,user)
     
-def edytuj_rolke(request, nr_rolki):
-    print(request.path)
+def edytuj_rolke(request, nr_rolki,rolka_old,user):
     if request.method == 'POST':
+        print(request.user)
         rolka = Rolka.objects.get(pk=nr_rolki)
         form = RolkaForm(request.POST, instance=rolka)
         # if re.search(r'all', request.path):
         #     form = RolkaForm_all(request.POST, instance=rolka)        
-        if form.is_valid():            
-            if not form.cleaned_data['dlugosc'] == rolka.dlugosc:
+        if form.is_valid():         
+            print(form.cleaned_data['dlugosc'])
+
+            if not form.cleaned_data['dlugosc'] == rolka_old:
+
                 created, log = Log.objects.get_or_create(rolka_id=rolka.pk,
                                                         index_tkaniny=rolka.tkanina.index_sap,
-                                                        dlugosc_rolki=rolka.dlugosc,
+                                                        dlugosc_rolki=rolka_old,
                                                         dlugosc_elementu=form.cleaned_data['dlugosc'],
+                                                        nr_fgk=user,
                                                         typ='EDYCJA_KOMPUTER')            
             form.save()              
             return render(request, 'magazyntkanin/edytuj.html', {'form': form, 'nr': nr_rolki, 'dzial': sprawdz_dzial(request)})
@@ -85,7 +95,9 @@ def obiegowka(request, nr_rolki):
 
 def obiegowka_full(request, nr_rolki):
     rolka = Rolka.objects.get(pk=nr_rolki)
-    functions.generuj_obigowke(
+    
+    #functions.generuj_obigowke(
+    functions.generuj_obiegowke_v1(
         id=rolka.id,
         index=rolka.tkanina.index_sap,
         nazwa_tkaniny=rolka.tkanina.nazwa,
@@ -424,7 +436,7 @@ def magazyn_inwentura_grupowana(request):
                 # Nastepny wiersz  należaloby zoptymalizowac, bo zjada mnostwo czasu !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
                 #j['dlPerIndeks']=Tkanina.objects.get(index_sap=j['index_tkaniny']).ilosc_na_magazynie() ### NA RAZIE NA SZTYWNO, POTEM DODAJ ZLICZANIE
                 #j['dlPerIndeks']=Tkanina.objects.get(index_sap=ind_old).ilosc_na_magazynie() ### NA RAZIE NA SZTYWNO, POTEM DODAJ ZLICZANIE
-                j['dlPerIndeks']=ilosc_
+                j['dlPerIndeks']=round(ilosc_,1)
                 #j['dlPerIndeks']=Tkanina.objects.filter(index_sap=ind_old).aggregate(Sum('dlugosc')) ### NA RAZIE NA SZTYWNO, POTEM DODAJ ZLICZANIE
                 
 
@@ -455,6 +467,8 @@ def magazyn_inwentura_grupowana(request):
         
         functions.generuj_raport_inwentury2(inw3)
         functions.generuj_raport_xls(inw3)
+        functions.generuj_xls_porownanie_sap(inw3)
+
         context['inw'] = inw3
         context['status'] = status
         return render(request, url, context)
@@ -909,11 +923,15 @@ def krojownia_paczki(request, *args, **kwargs):
 @login_required(login_url='/login/') #-- logowanie odkomentowac 
 def krojowania_edycja(request):
     url = 'magazyntkanin/krojownia_edycja.html'
+    user = request.user
+    print 
+
     context = {}
     if request.GET:
         rolka = request.GET.get('rolka')
         rolka = Rolka.objects.filter(pk=rolka)
         if rolka.exists():
+            
             url = 'magazyntkanin/statystyki_rolka.html'
             rolka = Rolka.objects.get(pk=rolka)
             context = {
@@ -923,6 +941,7 @@ def krojowania_edycja(request):
             context['log_m'] = log_magazynowy
             context['log_fgk'] = log_fgk
             context['dzial'] = 'krojownia'
+            context['user'] = user
             user_logout(request)
             return render(request, url, context)
         else:
@@ -1122,10 +1141,11 @@ def drukuj_etykiety(request):
                         r = Rolka.objects.create(
                             tkanina=tkanina, data_dostawy=data_przyjecia, nr_zamowienia=zamowienie)
                         barcodes.append(str(r.pk))
-                    functions.generuj_etykiete_tkaniny(
+                    functions.generuj_etykiete_tkaniny_podwojna(
                         nazwa, barcode=barcodes, data_dostawy=data_przyjecia)
                     call(['/etc/init.d/cups start'], shell=True)
-                    call(['lp tmp/etykieta.pdf'], shell=True)
+                    #call(['lp tmp/etykieta_podwojna.pdf'], shell=True)
+                    call(['lp -o Resolution=300dpi -o PageSize=w144h216 tmp/etykieta_podwojna.pdf'], shell=True)
                 else:
                     return HttpResponse("Nieprawidłowe dane")
             return HttpResponse("Wydrukowano")
@@ -1140,11 +1160,11 @@ def drukuj_etykiety(request):
             r = Rolka.objects.create(
                 tkanina=tkanina, data_dostawy=data_przyjecia)
             barcodes.append(str(r.pk))
-        functions.generuj_etykiete_tkaniny(
+        functions.generuj_etykiete_tkaniny_podwojna(
             nazwa, barcode=barcodes, data_dostawy=data_przyjecia)
         call(['/etc/init.d/cups start'], shell=True)
         # call(['ls /etc/cups/'], shell=True)
-        call(['lp tmp/etykieta.pdf'], shell=True)
+        call(['lp -o Resolution=300dpi -o PageSize=w144h216 tmp/etykieta_podwojna.pdf'], shell=True)
         return HttpResponse('Wydrukowano {0} etykiet {1}'.format(ilosc, tkanina.nazwa))
     else:
         return HttpResponse('Niepoprawne dane')
@@ -1230,11 +1250,11 @@ def drukuj_etykiete(request, nr_rolki):
             data_dostawy = ''
         nazwa_tkaniny = rolka.tkanina.nazwa
         barcode = [str(rolka.pk)]
-        functions.generuj_etykiete_tkaniny(nazwa_tkaniny, barcode, str(
+        functions.generuj_etykiete_tkaniny_podwojna(nazwa_tkaniny, barcode, str(
             L), str(R), data_dostawy, str(M), szerokosc)
-        with open('tmp/etykieta.pdf', 'rb') as pdf:
+        with open('tmp/etykieta_podwojna.pdf', 'rb') as pdf:
             response = HttpResponse(pdf.read(), content_type='application/pdf')
-            response['Content-Disposition'] = 'filename=etykieta.pdf'
+            response['Content-Disposition'] = 'filename=etykieta_podwojna.pdf'
             return response
         pdf.closed
     except Exception as e:
