@@ -356,17 +356,17 @@ class WpisyMagazyn(models.Model):
             dziennik=self.dziennik, rolka__tkanina=self.tkanina, aktywne=True)
         return rolki
 
-def historia(self):
-    rolki = WpisyMagazynPowiazania.objects.filter(
-        dziennik=self.dziennik, rolka__tkanina=self.tkanina).order_by('rolka__nr_rolki')
-    wpisy = []            
-    for each in rolki:
-        info = {}
-        info['rolka'] = each.rolka
-        # info['log'] = Log.objects.filter(dziennik_nr=self.dziennik.nr, rolka_id=each.rolka.pk, typ="WPIS_MAGAZYN_DODANIE")
-        info['log'] = Log.objects.filter(dziennik_nr=self.dziennik.nr, rolka_id=each.rolka.pk, typ="WPIS_MAGAZYN_DODANIE").last()
-        wpisy.append(info)
-    return wpisy
+    def historia(self):
+        rolki = WpisyMagazynPowiazania.objects.filter(
+            dziennik=self.dziennik, rolka__tkanina=self.tkanina).order_by('rolka__nr_rolki')
+        wpisy = []            
+        for each in rolki:
+            info = {}
+            info['rolka'] = each.rolka
+            # info['log'] = Log.objects.filter(dziennik_nr=self.dziennik.nr, rolka_id=each.rolka.pk, typ="WPIS_MAGAZYN_DODANIE")
+            info['log'] = Log.objects.filter(dziennik_nr=self.dziennik.nr, rolka_id=each.rolka.pk, typ="WPIS_MAGAZYN_DODANIE").last()
+            wpisy.append(info)
+        return wpisy
 
 
     def zwroty(self):
