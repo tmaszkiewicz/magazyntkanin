@@ -46,10 +46,21 @@ def sprawdz_dzial(request):
     return 'magazyn'
 
 def edytuj_rolke_(request, nr_rolki,user):
+    context = {
+    }
+    url='../registration/login/default/'
     rolka = Rolka.objects.get(pk=nr_rolki)
     rolka_old =rolka.dlugosc
     print(user)
-    return edytuj_rolke(request,nr_rolki,rolka_old,user)
+    context['user'] = user
+    if (user!="AnonymousUser"):
+        return edytuj_rolke(request,nr_rolki,rolka_old,user)
+    else:
+        adr  = '/edytuj/krojownia/'+str(nr_rolki)+'/'
+        context['url'] = url
+        print(adr)
+        #return edytuj_rolke_auth(request,nr_rolki,rolka_old,user) ## Docelowo edytuj_rolke_auth
+        return render(request,url,context)#,nr_rolki,rolka_old,user) ## Docelowo edytuj_rolke_auth
     
 def edytuj_rolke(request, nr_rolki,rolka_old,user):
     if request.method == 'POST':
@@ -78,6 +89,14 @@ def edytuj_rolke(request, nr_rolki,rolka_old,user):
     # if re.search(r'all', request.path):
     #     form = RolkaForm_all(instance=rolka)            
     return render(request, 'magazyntkanin/edytuj.html', {'form': form, 'nr': nr_rolki, 'dzial': sprawdz_dzial(request)})
+
+#@login_required(login_url = adr) #-- logowanie odkomentowac 
+def edytuj_rolke_auth(request, nr_rolki,rolka_old,user):
+    user = request.user
+    #return edytuj_rolke(request, nr_rolki,rolka_old,user)
+    return _rolke(request, nr_rolki,rolka_old,user)
+
+
 
 def obiegowka(request, nr_rolki):
     rolka = Rolka.objects.get(pk=nr_rolki)
@@ -920,7 +939,7 @@ def krojownia_paczki(request, *args, **kwargs):
     }
     return render(request, url_name, context)
 
-@login_required(login_url='/login/') #-- logowanie odkomentowac 
+@login_required(login_url='/login/default/') #-- logowanie odkomentowac 
 def krojowania_edycja(request):
     url = 'magazyntkanin/krojownia_edycja.html'
     user = request.user
@@ -996,25 +1015,37 @@ def krojownia_obiegowki(request):
         return obiegowka_full(request, nr_rolki)
     return render(request, url, context)
 
-def user_login(request):
+def user_login(request, **kwargs):
     if request.user.is_authenticated():
         return HttpResponseRedirect('/krojownia/')
     form = LoginForm()
-    return render(request, 'registration/login.html', {'form': form})
+    context = {
+    
+    }
+    context['form'] = form
+    context['url'] = kwargs['url']
+    return render(request, 'registration/login.html', context)
 
-def l_check(request,nr_rolki):
-    print("d11111")
+def l_check(request, **kwargs):
     if request.method == 'POST':
         form = LoginForm(request.POST)
         if form.is_valid():
             data = form.cleaned_data
             user = data['user']
             password = data['password']
+            print("55555", kwargs['url'])
             user_check = authenticate(username=user, password=password)
             if user_check:
                 if user_check.is_active:
                     login(request, user_check)
-                    return HttpResponseRedirect('/krojownia/edytuj')
+                    if re.match("default",kwargs['url']):
+                        print("1")
+                        return HttpResponseRedirect('/krojownia/edytuj')
+                    else:
+                        #print('/edytuj/krojownia/'+'/' + '90272' +'/'+ data['user']+'/')
+
+                        return HttpResponseRedirect('/krojownia/edytuj')
+                        #return HttpResponseRedirect('/edytuj/krojownia/'+'/' + '90272' +'/'+ data['user']+'/')
             else:
                 return render(request, 'registration/login.html', {'form': form, 'error': 'Logowanie nie poprawne'})
     return render(request, 'registration/login.html', {'form': form, 'error': 'Logowanie nie poprawne'})      
@@ -1819,8 +1850,7 @@ def znajdz_barcode(request):
                     rolka.data_dostawy,
                     rolka.szerokosc,
                     rolka.tkanina.nazwa,
-                    rolka.nr_zamowienia,
-                    rolka.dostawca)]   # dodany dostawca 21052019
+                    rolka.nr_zamowienia)]
         for i, x in enumerate(str_return):
             if x == "None":
                 str_return[i] = ""
@@ -1878,20 +1908,14 @@ def edytuj(request):
     lot = request.POST['lot']
     nr_rolki = request.POST['nr_rolki']
     dlugosc = request.POST['dlugosc']
-    print(dlugosc,"123123123")
     szerokosc = request.POST['szerokosc']
-    zamowienia = request.POST.get('zamowienie') # 21052019 TM byc moze do zmiany bez get i [] 
-    #zamowienia = request.POST['zamowienie'] #< ---- na to
+    zamowienia = request.POST.get('zamowienie')
     data_direct = request.POST['data_dostawy'].replace('/', '-')
-    dostawca = request.POST['dostawca']
-    print(dlugosc)
     try:
         dlugosc = float(dlugosc.replace(',', '.'))
     except ValueError as e:
         ErrorLog.objects.create(error=e, post=request.POST, funkcja=request.get_full_path())
         return HttpResponse("Niepoprawne dane")
-    
-    print("dupa")
     nr_rolki = 0 if nr_rolki == "" else nr_rolki
     dlugosc = 0 if dlugosc == "" else dlugosc
     log = 0 if lot == "" else lot
@@ -1915,7 +1939,6 @@ def edytuj(request):
             rolka.data_dostawy = data_dostawy
             rolka.szerokosc = szerokosc
             rolka.nr_zamowienia = zamowienia
-            rolka.dostawca = dostawca # 21052019 TM
             rolka.save()
             return HttpResponse('Zapisano!')
         except Exception as e:

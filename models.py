@@ -88,6 +88,7 @@ class Rolka(models.Model):
     zakonczona = models.BooleanField(default=False)
     wydrukowana = models.BooleanField(default=False)
     do_usuniecia = models.BooleanField(default=False)
+    dostawca = models.CharField(max_length=30, blank=True, null=True)
     class Meta:
         verbose_name_plural = 'Rolki'
 
@@ -147,6 +148,7 @@ class Rolka_usunieta(models.Model):
     zakonczona = models.BooleanField(default=False)
     wydrukowana = models.BooleanField(default=False)
     do_usuniecia = models.BooleanField(default=False)
+    dostawca = models.CharField(max_length=30, blank=True, null=True)
     class Meta:
         verbose_name_plural = 'Rolki usuniete'
 
@@ -208,6 +210,7 @@ class Rolka_zliczana(models.Model):
     zakonczona = models.BooleanField(default=False)
     wydrukowana = models.BooleanField(default=False)
     do_usuniecia = models.BooleanField(default=False)
+    dostawca = models.CharField(max_length=30, blank=True, null=True)
     class Meta:
         verbose_name_plural = 'Rolki zliczane'
 

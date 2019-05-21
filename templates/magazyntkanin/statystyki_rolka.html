@@ -7,7 +7,7 @@
                 <h2>Rolka nr : {{ rolka.pk }}</h2>
             </div>
             <div class="col-lg-3 col-md-12">
-                <a href="/edytuj/krojownia/{{rolka.pk}}"><button class="btn btn-default" type="button">Edytuj</button></a>
+                <a href="/edytuj/krojownia/{{rolka.pk}}/{{user}}"><button class="btn btn-default" type="button">Edytuj</button></a>
                 <a href="/test/obiegowka_full/{{rolka.pk}}"><button class="btn btn-default" type="button">Obiegówka</button></a>
                 <a href="/drukuj/{{rolka.pk}}"><button class="btn btn-default" type="button">Drukuj</button></a>
             </div>
@@ -174,10 +174,16 @@
                                     <a href="/magazyn/raporty/?dziennik={{each.dziennik_nr}}">
                                         {{ each.dziennik_nr }}
                                     </a>
+						
+                                    {% elif each.typ == "EDYCJA_KOMPUTER"%}
+				    <a>
+					{{ each.nr_fgk }}
+				    </a>
                                     {% endif %}
+				
                                 </td>
                                 <td>
-                                {% if each.typ == "EDYCJA" %}
+                                {% if each.typ == "EDYCJA" or each.typ == "EDYCJA_KOMPUTER"%}
                                     przed {% if not each.dlugosc_rolki %}0{% else %}{{ each.dlugosc_rolki }}{% endif %} / po {{each.dlugosc_elementu}}
                                     {% else %}
                                     {{ each.dlugosc_rolki }}

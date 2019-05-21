@@ -924,6 +924,7 @@ def krojownia_paczki(request, *args, **kwargs):
 def krojowania_edycja(request):
     url = 'magazyntkanin/krojownia_edycja.html'
     user = request.user
+    print 
 
     context = {}
     if request.GET:
@@ -1002,8 +1003,7 @@ def user_login(request):
     form = LoginForm()
     return render(request, 'registration/login.html', {'form': form})
 
-def l_check(request,nr_rolki):
-    print("d11111")
+def l_check(request):
     if request.method == 'POST':
         form = LoginForm(request.POST)
         if form.is_valid():
@@ -1878,20 +1878,15 @@ def edytuj(request):
     lot = request.POST['lot']
     nr_rolki = request.POST['nr_rolki']
     dlugosc = request.POST['dlugosc']
-    print(dlugosc,"123123123")
     szerokosc = request.POST['szerokosc']
     zamowienia = request.POST.get('zamowienie') # 21052019 TM byc moze do zmiany bez get i [] 
-    #zamowienia = request.POST['zamowienie'] #< ---- na to
     data_direct = request.POST['data_dostawy'].replace('/', '-')
     dostawca = request.POST['dostawca']
-    print(dlugosc)
     try:
         dlugosc = float(dlugosc.replace(',', '.'))
     except ValueError as e:
         ErrorLog.objects.create(error=e, post=request.POST, funkcja=request.get_full_path())
         return HttpResponse("Niepoprawne dane")
-    
-    print("dupa")
     nr_rolki = 0 if nr_rolki == "" else nr_rolki
     dlugosc = 0 if dlugosc == "" else dlugosc
     log = 0 if lot == "" else lot

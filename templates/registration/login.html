@@ -3,8 +3,14 @@
 {% block body %}
 <div class="col-xs-3 col-sm-3 col-md-3 col-lg-3"></div>
 <div class="col-xs-6 col-sm-6 col-md-6 col-lg-6">
-        <form action="../l_check/" method="POST" role="form">
-                {% csrf_token %}
+	{% if nr_rolki %}
+        <form action="../../../../l_check/{{nr_rolki}}/" method="POST" role="form">
+	{% else %}
+        <form action="/l_check/999999/" method="POST" role="form">
+	{% endif %}
+	{% csrf_token %}
+		{{nr_rolki}}
+		{{login_url}}
                 <legend class="test">Zaloguj:</legend>
 
                 <div class="form-group">
