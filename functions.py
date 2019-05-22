@@ -1147,7 +1147,7 @@ def Bezposredni_wydruk(Rolka):
         data_dostawy = ''
     nazwa_tkaniny = rolka.tkanina.nazwa
     barcode = [str(rolka.pk)]
-    generuj_etykiete_tkaniny(nazwa_tkaniny, barcode, str(
+    generuj_etykiete_tkaniny_podwojna(nazwa_tkaniny, barcode, str(
         L), str(R), data_dostawy, str(M))
     call(['/etc/init.d/cups start'], shell=True)
     #call(['lp tmp/etykieta.pdf'], shell=True)

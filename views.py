@@ -1858,6 +1858,7 @@ def drukuj_barcode(request):
             rolka.save()
             return HttpResponse('Etykieta ' + str(rolka.pk) + ' wydrukowana!')
         elif Rolka.objects.filter(pk=barcode).exists():
+            print("Wydruk ze skanera")
             rolka_pk = Rolka.objects.get(pk=barcode)
             functions.Bezposredni_wydruk(rolka_pk)
             rolka_pk.wydrukowana = True
