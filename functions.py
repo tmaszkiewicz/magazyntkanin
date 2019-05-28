@@ -648,7 +648,7 @@ def generuj_obiegowke_v1(
 
     if full:
         #wpisy = Log.objects.filter(rolka_id=id, typ__startswith="FGK")
-        wpisy = Log.objects.filter(rolka_id=id)
+        wpisy = Log.objects.filter(rolka_id=id).order_by('-timestamp')
         for each in wpisy:
             
             try:
@@ -673,8 +673,11 @@ def generuj_obiegowke_v1(
         
 
 
-
-            data.append([each.timestamp.strftime('%d-%m-%Y'), nrfgk, rolka, '', dlelementu, round(dlrolki-dlelementu, 2)])
+            if nrfgk!="EDYCJA":
+                data.append([each.timestamp.strftime('%d-%m-%Y'), nrfgk, rolka, '', dlelementu, round(dlrolki-dlelementu, 2)])
+            else:
+                data.append([each.timestamp.strftime('%d-%m-%Y'), nrfgk, rolka, '', round(dlrolki-dlelementu, 2), dlelementu])
+                
         for i in range(13-wpisy.count()):
             data.append(['', '', '', '', '', ''])
     else:

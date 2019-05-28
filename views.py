@@ -1003,7 +1003,6 @@ def user_login(request):
     return render(request, 'registration/login.html', {'form': form})
 
 def l_check(request,nr_rolki):
-    print("d11111")
     if request.method == 'POST':
         form = LoginForm(request.POST)
         if form.is_valid():
@@ -1117,6 +1116,9 @@ def drukuj_etykiety(request):
         if mass:
             data_przyjecia = request.GET.get('data-przyjecia')
             zamowienie = request.GET.get('zamowienie') if request.GET.get('zamowienie') else None
+            #22.05.2019  TM Dodac info na temat dostawcy, wiersz ponizej            
+            dostawca = request.GET.get('dostawca') if request.GET.get('dostawca') else None
+            print(dostawca)
             if data_przyjecia == "":
                 return HttpResponse('Wprowadz date')
             linie = mass.split('\n')
@@ -1138,8 +1140,12 @@ def drukuj_etykiety(request):
                     tkanina = Tkanina.objects.get(index_sap=nr_sap)
                     nazwa = tkanina.nazwa
                     for e in range(int(ilosc)):
+                        #22.05.2019 TMzamienic ponizsze przypisaniem rozserzonym o dostawce, czyli dodac dostawca=dostawca w create.
+                        # Odzwierciedlenie musi byc w templatkach w generator_tkanin.html
                         r = Rolka.objects.create(
-                            tkanina=tkanina, data_dostawy=data_przyjecia, nr_zamowienia=zamowienie)
+                            tkanina=tkanina, data_dostawy=data_przyjecia, nr_zamowienia=zamowienie, dostawca=dostawca)
+                        
+                        
                         barcodes.append(str(r.pk))
                     functions.generuj_etykiete_tkaniny_podwojna(
                         nazwa, barcode=barcodes, data_dostawy=data_przyjecia)
@@ -1879,20 +1885,17 @@ def edytuj(request):
     lot = request.POST['lot']
     nr_rolki = request.POST['nr_rolki']
     dlugosc = request.POST['dlugosc']
-    print(dlugosc,"123123123")
     szerokosc = request.POST['szerokosc']
     zamowienia = request.POST.get('zamowienie') # 21052019 TM byc moze do zmiany bez get i [] 
     #zamowienia = request.POST['zamowienie'] #< ---- na to
     data_direct = request.POST['data_dostawy'].replace('/', '-')
     dostawca = request.POST['dostawca']
-    print(dlugosc)
     try:
         dlugosc = float(dlugosc.replace(',', '.'))
     except ValueError as e:
         ErrorLog.objects.create(error=e, post=request.POST, funkcja=request.get_full_path())
         return HttpResponse("Niepoprawne dane")
     
-    print("dupa")
     nr_rolki = 0 if nr_rolki == "" else nr_rolki
     dlugosc = 0 if dlugosc == "" else dlugosc
     log = 0 if lot == "" else lot
@@ -2178,11 +2181,40 @@ def log_info(request):
             return_string = ""
             data = []
             wpisy = Log.objects.filter(rolka_id=rolka_id, typ__startswith="FGK").order_by('-timestamp')
-            print(wpisy,sep='\n')
+           #print(wpisy,sep='\n')
             for each in wpisy:
+
                 data.append([each.timestamp.strftime('%d-%m-%Y'), each.nr_fgk, each.dlugosc_elementu, round(each.dlugosc_rolki-each.dlugosc_elementu, 2)])
             for each in data:
                 line = f'{each[0]} // {each[1]}\n{each[2]}mb// {each[3]}mb'
+                #line = f'{each[0]} // {each[1]} // {each[2]}mb// {each[3]}mb'
+                return_string = return_string + line + '\n------------\n'
+        return HttpResponse(return_string)
+    return HttpResponse("")
+
+@csrf_exempt
+def log_info_full(request):
+    if request.method == 'POST':
+        rolka_id = request.POST.get('rolka_id')
+        rolka = Rolka.objects.filter(pk=rolka_id)
+        if rolka.exists():
+            return_string = ""
+            data = []
+            wpisy = Log.objects.filter(rolka_id=rolka_id).order_by('-timestamp')
+            #print(wpisy,sep='\n')
+            for each in wpisy:
+                try:
+                    dlEl = float(each.dlugosc_elementu)
+                except:
+                    dlEl=0
+
+                data.append([each.timestamp.strftime('%d-%m-%Y'), each.nr_fgk, each.dlugosc_elementu, round(each.dlugosc_rolki-dlEl, 2),each.typ])
+            for each in data:
+                if each[2]!=None:
+                    line = f'{each[0]} / {each[1]} / {each[2]}mb \n {each[3]}mb / {each[4]}'
+                else:
+                    line = f'{each[0]} / {each[1]} \n {each[3]}mb / {each[4]}'
+                #line = f'{each[0]} // {each[1]} // {each[2]}mb// {each[3]}mb'
                 return_string = return_string + line + '\n------------\n'
         return HttpResponse(return_string)
     return HttpResponse("")
