@@ -2205,10 +2205,27 @@ def log_info_full(request):
             for each in wpisy:
                 try:
                     dlEl = float(each.dlugosc_elementu)
+                    #switch (each.typ){
+                    #    case "EDYCJA":  log_typ="EDYCJA";
+                         #    break;
+                        #case "WYDANIE_MAG_WZORNIKI":    log_typ="WZORNIKI";
+                        #                break;
+                                        
+
+            
+
+                    #}
+
                 except:
                     dlEl=0
+                if each.typ=="EDYCJA":
+                    data.append([each.timestamp.strftime('%d-%m-%Y'), each.nr_fgk, each.dlugosc_rolki, round(dlEl, 2),functions.typ_descr(each.typ)])
+                elif each.typ in ("WYDANIE_MAG_WZORNIKI", "FGK_poza","FGK","FGK_laczone","FGK_laczone_poza"):
+                    data.append([each.timestamp.strftime('%d-%m-%Y'), each.nr_fgk, dlEl, round(each.dlugosc_rolki, 2),functions.typ_descr(each.typ)])
+                else:
+                    data.append([each.timestamp.strftime('%d-%m-%Y'), each.nr_fgk, dlEl, round(each.dlugosc_rolki-dlEl, 2),functions.typ_descr(each.typ)])
 
-                data.append([each.timestamp.strftime('%d-%m-%Y'), each.nr_fgk, each.dlugosc_elementu, round(each.dlugosc_rolki-dlEl, 2),each.typ])
+                    
             for each in data:
                 if each[2]!=None:
                     line = f'{each[0]} / {each[1]} / {each[2]}mb \n {each[3]}mb / {each[4]}'

@@ -649,10 +649,12 @@ def generuj_obiegowke_v1(
     if full:
         #wpisy = Log.objects.filter(rolka_id=id, typ__startswith="FGK")
         wpisy = Log.objects.filter(rolka_id=id).order_by('-timestamp')
+
         for each in wpisy:
             
             try:
                 nrfgk=each.nr_fgk
+                typfgk=each.typ
                 if not each.nr_fgk:
                     nrfgk=each.typ
 
@@ -671,12 +673,15 @@ def generuj_obiegowke_v1(
             except:
                 dlelementu = 0
         
+            print(nrfgk)
+            
+            if typfgk=="EDYCJA":
+                data.append([each.timestamp.strftime('%d-%m-%Y'), nrfgk, rolka, '', dlrolki, round(dlelementu, 2)])
+            elif typfgk in ("WYDANIE_MAG_WZORNIKI", "FGK_poza","FGK","FGK_laczone","FGK_laczone_poza"):
+                data.append([each.timestamp.strftime('%d-%m-%Y'), nrfgk, rolka, '', dlelementu, round(dlrolki, 2)])
 
-
-            if nrfgk!="EDYCJA":
-                data.append([each.timestamp.strftime('%d-%m-%Y'), nrfgk, rolka, '', dlelementu, round(dlrolki-dlelementu, 2)])
             else:
-                data.append([each.timestamp.strftime('%d-%m-%Y'), nrfgk, rolka, '', round(dlrolki-dlelementu, 2), dlelementu])
+                data.append([each.timestamp.strftime('%d-%m-%Y'), nrfgk, rolka, '', dlelementu, round(dlrolki-dlelementu, 2)])
                 
         for i in range(13-wpisy.count()):
             data.append(['', '', '', '', '', ''])
@@ -1655,3 +1660,23 @@ def zamien_wzornik_na_pdf(plik=os.path.join('tmp', 'wzornik_tmp.xlsx')):
         call(['curl --form file=@tmp/wzornik_tmp.xlsx http://uniconv:3000/unoconv/pdf > tmp/wzornik_tmp.pdf'], shell=True)
     except expression as e:
         print(e)
+def typ_descr(typ):
+    switcher = {
+        "EDYCJA": "EDYCJA",
+        "WYDANIE_MAG_WZORNIKI":"WZORNIKI",
+        "WYDANIE_MAG_WYMIANKA":"WYMIANKA",
+        "WPIS_MAGAZYN_WYDANIE":"WYDANIE",
+        "FGK_laczone":"FGK_L",
+        "FGK_laczone_poza":"FGK_LP",
+        "FGK_poza":"FGK_P",
+        "ODPAD":"ODPAD",
+        "WPIS_MAGAZYN_DODANIE":"DODANIE",
+        "WPIS_MAGAZYN_ZWROT":"ZWROT",
+        "WPIS_MAGAZYN_WYCOFANIE":"WYCOFANIE",
+
+    }
+    if switcher=="":
+        switcher=typ
+    return switcher.get(typ, typ)
+
+
