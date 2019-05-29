@@ -100,6 +100,7 @@ urlpatterns = [
     url(r'^scanner/znajdz_barcode/$', views.znajdz_barcode, name='znajdz_barcode'),
     url(r'^scanner/zwrot_magazyn/$', views.odbierz_tkanine, name='odbierz_tkanine'),
     url(r'^scanner/log/$', views.log_info, name='log_info'),
+    url(r'^scanner/log_full/$', views.log_info_full, name='log_info_full'),
     url(r'^magazyn/tkaniny/(?P<nr_tkaniny>[0-9]+)/$', views.tkaniny_edit, name='tkaniny_edit'),
     url(r'^magazyn/tkaniny/new/$', views.tkaniny_new, name='tkaniny_new'),
     url(r'^magazyn/drukuj_etykiety_test/$', views.drukuj_etykiety_test, name='drukuj_etykiety_test'),

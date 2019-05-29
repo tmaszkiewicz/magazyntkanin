@@ -1,5 +1,7 @@
 {% extends "magazyntkanin/base.html" %}
 {% block body %}
+{% load mathfilters %}
+
 <div class="newsletter-subscribe">
     <form class="form-inline" method="get" action="{% url 'magazyntkanin:podaj_dzienniki' %}">
     <div class="container">
@@ -53,9 +55,11 @@
                             <th>Historia</th>
                             {% if zwroty %}
                             <th>Zwrocone rolki</th>                            
+                            <th>Szerokosc</th>
                             {% else %} 
                             <th>Przypisane rolki</th>                            
                             <th>Pozostale metry</th>
+                            <th>Szerokosc</th>
                             {% endif %}
                         </tr>
                     </thead>
@@ -80,13 +84,26 @@
                                     <a href="{% url 'magazyntkanin:statystyki_rolka' rolka=rolka.rolka.pk %}">{{ rolka.rolka.nr_rolki }} / {{ rolka.rolka.w_metrach }} m</a><br> 
                                 {% endfor %}
                             </td>                                
+                            <td>
+                                {% for rolka in dz.powiazania_wg_tkaniny %}
+				    {{rolka.rolka.szerokosc|div:1000}} m
+					
+                                {% endfor %}
+                            </td>                            
                             {% else %} 
                             <td>
                                 {% for rolka in dz.powiazania_wg_tkaniny %}
                                     <a href="{% url 'magazyntkanin:statystyki_rolka' rolka=rolka.rolka.pk %}">{{ rolka.rolka.nr_rolki }} / {{ rolka.rolka.w_metrach }} m</a><br> 
+					
                                 {% endfor %}
                             </td>                            
                             <td>{{ dz.pozostalo_metrow|floatformat }} m</td>
+                            <td>
+                                {% for rolka in dz.powiazania_wg_tkaniny %}
+				    {{rolka.rolka.szerokosc|div:1000}} m
+					
+                                {% endfor %}
+                            </td>                            
                             {% endif %}                            
                     	</tr>				
                     	{% endfor %}
