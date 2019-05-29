@@ -1,6 +1,5 @@
 {% extends "magazyntkanin/base.html" %}
 {% block body %}
-{% load mathfilters %}
 
 <div class="newsletter-subscribe">
     <form class="form-inline" method="get" action="{% url 'magazyntkanin:podaj_dzienniki' %}">
@@ -86,7 +85,7 @@
                             </td>                                
                             <td>
                                 {% for rolka in dz.powiazania_wg_tkaniny %}
-				    {{rolka.rolka.szerokosc|div:1000}} m
+				    {{rolka.rolka.szerokosc}} mm
 					
                                 {% endfor %}
                             </td>                            
@@ -100,7 +99,7 @@
                             <td>{{ dz.pozostalo_metrow|floatformat }} m</td>
                             <td>
                                 {% for rolka in dz.powiazania_wg_tkaniny %}
-				    {{rolka.rolka.szerokosc|div:1000}} m
+				    {{rolka.rolka.szerokosc}} mm
 					
                                 {% endfor %}
                             </td>                            
