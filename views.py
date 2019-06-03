@@ -1116,9 +1116,10 @@ def drukuj_etykiety(request):
         if mass:
             data_przyjecia = request.GET.get('data-przyjecia')
             zamowienie = request.GET.get('zamowienie') if request.GET.get('zamowienie') else None
-            #22.05.2019  TM Dodac info na temat dostawcy, wiersz ponizej            
             dostawca = request.GET.get('dostawca') if request.GET.get('dostawca') else None
-            print(dostawca)
+            #22.05.2019  TM Dodac info na temat dostawcy, wiersz ponizej            
+            if dostawca==None or dostawca=="":
+                return HttpResponse('Wprowadz dostawce')
             if data_przyjecia == "":
                 return HttpResponse('Wprowadz date')
             linie = mass.split('\n')
@@ -2220,7 +2221,7 @@ def log_info_full(request):
                     dlEl=0
                 if each.typ=="EDYCJA":
                     data.append([each.timestamp.strftime('%d-%m-%Y'), each.nr_fgk, each.dlugosc_rolki, round(dlEl, 2),functions.typ_descr(each.typ)])
-                elif each.typ in ("WYDANIE_MAG_WZORNIKI", "FGK_poza","FGK","FGK_laczone","FGK_laczone_poza"):
+                elif each.typ in ("WYDANIE_MAG_WZORNIKI", "FGK_poza","FGK","FGK_laczone","FGK_laczone_poza","WYDANIE_MAG_WYMIANKA"):
                     data.append([each.timestamp.strftime('%d-%m-%Y'), each.nr_fgk, dlEl, round(each.dlugosc_rolki, 2),functions.typ_descr(each.typ)])
                 else:
                     data.append([each.timestamp.strftime('%d-%m-%Y'), each.nr_fgk, dlEl, round(each.dlugosc_rolki-dlEl, 2),functions.typ_descr(each.typ)])

@@ -677,7 +677,7 @@ def generuj_obiegowke_v1(
             
             if typfgk=="EDYCJA":
                 data.append([each.timestamp.strftime('%d-%m-%Y'), nrfgk, rolka, '', dlrolki, round(dlelementu, 2)])
-            elif typfgk in ("WYDANIE_MAG_WZORNIKI", "FGK_poza","FGK","FGK_laczone","FGK_laczone_poza"):
+            elif typfgk in ("WYDANIE_MAG_WZORNIKI", "FGK_poza","FGK","FGK_laczone","FGK_laczone_poza","WYDANIE_MAG_WYMIANKA"):
                 data.append([each.timestamp.strftime('%d-%m-%Y'), nrfgk, rolka, '', dlelementu, round(dlrolki, 2)])
 
             else:

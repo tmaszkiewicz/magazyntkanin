@@ -84,8 +84,9 @@
                                 {% endfor %}
                             </td>                                
                             <td>
-                                {% for rolka in dz.powiazania_wg_tkaniny %}
+                                {% for rolka in dz.historia %}
 				    {{rolka.rolka.szerokosc}} mm
+				    <br>
 					
                                 {% endfor %}
                             </td>                            
@@ -98,8 +99,9 @@
                             </td>                            
                             <td>{{ dz.pozostalo_metrow|floatformat }} m</td>
                             <td>
-                                {% for rolka in dz.powiazania_wg_tkaniny %}
+                                {% for rolka in dz.historia %}
 				    {{rolka.rolka.szerokosc}} mm
+				<br>
 					
                                 {% endfor %}
                             </td>                            
