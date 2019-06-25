@@ -1063,7 +1063,10 @@ def generuj_etykiete_tkaniny_podwojna(nazwa_tkaniny, barcode=[], L='', R='', dat
         #NAZWA      
         c.drawCentredString((pegewidth/2) * cm, (4.5+shift-0.5) * cm, nazwa_tkaniny[0])
         #KOLOR
-        c.drawCentredString((pegewidth/2) * cm, (4.5+shift-1.5) * cm, nazwa_tkaniny[1])
+        try:
+            c.drawCentredString((pegewidth/2) * cm, (4.5+shift-1.5) * cm, nazwa_tkaniny[1])
+        except:
+            c.drawCentredString((pegewidth/2) * cm, (4.5+shift-1.5) * cm, "")
 
         qr_code = qr.QrCodeWidget(barcode[i])
         bounds = qr_code.getBounds()

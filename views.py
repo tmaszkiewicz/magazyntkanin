@@ -1841,6 +1841,32 @@ def znajdz_barcode(request):
     return HttpResponse("")
 
 @csrf_exempt
+def znajdz_bar_dziennik(request):
+    try:
+        barcode = request.POST['barcode']
+        dziennik = request.POST['dziennik']
+        rolka = Rolka.objects.get(pk=barcode)
+            
+        wpis = WpisyMagazyn.objects.get(dziennik__nr=dziennik,tkanina=rolka.tkanina)
+        print(wpis)
+            #wpis = WpisyMagazyn.filter(dziennik=dziennik)
+        str_return = [str(x) for x in 
+                    (wpis.dziennik.nr,
+                    wpis.tkanina.index_sap,
+                    wpis.tkanina.nazwa,
+                    wpis.ilosc)]   # dodany dostawca 21052019
+        for i, x in enumerate(str_return):
+            if x == "None":
+                str_return[i] = ""
+        print("Test edycji:", request.POST)
+        return HttpResponse(",". join(str_return))
+    except Exception as e:
+        message = "Nie odnaleziono kodu rolki11111 (e:23)"
+        print(message, request.POST, e)
+        ErrorLog.objects.create(error=e, post=request.POST, funkcja=request.get_full_path())
+        return HttpResponse("Error")
+    return HttpResponse("")
+@csrf_exempt
 def drukuj_barcode(request):
     try:
         barcode = request.POST['barcode']
