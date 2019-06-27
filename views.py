@@ -1526,6 +1526,36 @@ def informacje(request):
         return HttpResponse("False")
 
 @csrf_exempt
+def informacje_v2(request):
+    pk = request.POST['barcode']
+    try:
+        rolka = Rolka.objects.get(pk=pk)
+        return_arr = []
+        status = ['Magazyn', 'Wydana', 'Zakonczna']
+        infor_tupple = (rolka.lot,
+                        rolka.nr_rolki,
+                        rolka.dlugosc_poczatkowa,
+                        rolka.dlugosc,
+                        rolka.tkanina.nazwa,
+                        rolka.data_dostawy if rolka.data_dostawy is not None else "Brak",
+                        rolka.odpad_set.all().aggregate(Sum('ilosc'))['ilosc__sum'] if not rolka.odpad_set.all(
+                        ).aggregate(Sum('ilosc'))['ilosc__sum'] is None else 0,
+                        status[rolka.status],
+                        rolka.szerokosc,
+                        rolka.dostawca,
+                        )
+        print(infor_tupple)
+        return_a = "|".join(str(x) for x in infor_tupple)
+        if rolka.wpisymagazynpowiazania_set.filter(aktywne=True).count() > 0:
+            return_b = "|".join(
+                str(x.dziennik.nr) for x in rolka.wpisymagazynpowiazania_set.filter(aktywne=True))
+        else:
+            return_b = ""
+        return HttpResponse(return_a + ";" + return_b)
+    except Exception as e:
+        ErrorLog.objects.create(error=e, post=request.POST, funkcja=request.get_full_path())
+        return HttpResponse("False")
+@csrf_exempt
 def informacje_tm_test(request):
     pk = request.POST['barcode']
     try:
