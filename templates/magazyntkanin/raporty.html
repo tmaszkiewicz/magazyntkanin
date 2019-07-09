@@ -76,6 +76,7 @@
 <div class="row" style="margin-top: 80px;">
     <div class="col-xs-1 col-sm-1 col-md-1 col-lg-1" style="margin-top: 50px;">
     </div>
+    <form action="{% url 'magazyntkanin:zerowe_do_usuniecia' %}" method="GET" role="form">
     <div class="col-xs-10 col-sm-10 col-md-10 col-lg-10">
         <h2>Znaleziono {{wpisy.count}} wpisów:</h2>        
         <table class="table table-hover">
@@ -92,6 +93,7 @@
                     <th>Szerokość</th>
                     <th>Dzienniki</th>
                     <th>Data dostawy</th>
+                    <th>Usuń</th>
                 </tr>
             </thead>
             <tbody>
@@ -125,12 +127,16 @@
                         {% endfor %}
                     </td>
                     <td>{{ rolka.data_dostawy }}</td>
-		  <!--  <td><input class="form-control" type="checkbox" name={{rolka.rolka_id}} id={{rolka.rolka_id}}></td> -->
+		    <td><input class="form-control" type="checkbox" name={{rolka.pk}} id={{rolka.rolka_id}}></td> 
 
                 </tr>
                 {% endfor %}
             </tbody>
         </table>
+	<div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+	    <button type="submit" class="btn btn-primary">Oznacz jako "do usniecia"</button>
+	</div>
     </div>
+   </form>
 </div>
 {% endblock body %}

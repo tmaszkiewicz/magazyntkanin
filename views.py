@@ -331,7 +331,7 @@ def magazyn_inwentura_grupowana(request):
                     inw2['dlugosc_rolki']=inw_.dlugosc
                     inw3.append(inw2)
 
-                #context['inw'] = inw3
+                #['inw'] = inw3
                 #return render(request, url, context)
 
                 
@@ -2292,6 +2292,33 @@ def log_info_full(request):
                 return_string = return_string + line + '\n------------\n'
         return HttpResponse(return_string)
     return HttpResponse("")
+# Wybieramy stany zerowe do usuniecia checkboxami...
+def zerowe_do_usuniecia(request):
+    url='magazyntkanin/do_usuniecia.html'
+    context = {
+    }
+    if request.method == 'GET':
+        rolka = Rolka.objects.all()   
+        for i in rolka:
+            if request.GET.get(str(i.pk))=="on":
+                i.do_usuniecia=True
+                i.save()
+
+        context['rolka']=Rolka.objects.filter(do_usuniecia=True)
+        #print(Rolka.objects.filter(do_usuniecia=True))
+    return render(request,url,context)
+# ...i na nastepnym formularzu usuwamy je bezpowrotnie
+
+def do_usuniecia(request):
+    
+    url='magazyntkanin/raporty.html'
+    context = {
+    }    
+    Rolka.objects.filter(do_usuniecia=True).delete()
+    return render(request,url,context)
+   
+
+
 
 def czysc_zliczanie(request):
     url='magazyntkanin/inwentura_rep.html'

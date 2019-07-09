@@ -1,0 +1,70 @@
+{% extends "magazyntkanin/base.html" %}
+
+{% block body %}
+
+<div class="row" style="margin-top: 80px;">
+    <div class="col-xs-1 col-sm-1 col-md-1 col-lg-1" style="margin-top: 50px;">
+    </div>
+    <form action="{% url 'magazyntkanin:zerowe_do_usuniecia' %}" method="GET" role="form">
+    <div class="col-xs-10 col-sm-10 col-md-10 col-lg-10">
+        <h2>Znaleziono {{wpisy.count}} wpisów:</h2>        
+        <table class="table table-hover">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Tkanina</th>
+                    <th>Nr rolki</th>
+                    <th>Lot</th>
+                    <th>Status</th>
+                    <th>Nr zamowienia</th>
+                    <th>WZ</th>
+                    <th>Długość</th>
+                    <th>Szerokość</th>
+                    <th>Dzienniki</th>
+                    <th>Data dostawy</th>
+                </tr>
+            </thead>
+            <tbody>
+	
+                {% for rolka in rolka %}                
+                <tr>
+                    <td>
+                        {{ rolka.pk }}
+                        <a href="{% url 'magazyntkanin:statystyki_rolka' rolka=rolka.pk %}"><i class="glyphicon glyphicon-list-alt"></i></a>
+                    </td>
+                    <td>
+                        <a href="?tkanina={{rolka.tkanina.index_sap}}">{{ rolka.tkanina }}</a>
+                        <a href="{% url 'magazyntkanin:statystyki_tkanina' tkanina=rolka.tkanina.index_sap %}"><i class="glyphicon glyphicon-list-alt"></i></a>
+                    </td>
+                    <td>{{ rolka.nr_rolki }}</td>
+                    <td>{{ rolka.lot }}</td>
+                    <td>{{ rolka.get_status_display }}</td>
+                    <td>
+                        <a href="?zamowienie={{rolka.nr_zamowienia}}">{{ rolka.nr_zamowienia|default:"" }}</a>
+                        {% if rolka.nr_zamowienia and not rolka.nr_zamowienia == "" %}
+                            <a href="{% url 'magazyntkanin:raporty_zamowienie' zamowienie=rolka.nr_zamowienia %}"><i class="glyphicon glyphicon-list-alt"></i></a>
+                        {% endif %}                        
+                    </td>
+                    <td>{{ rolka.get_wydanie_display }}</td>
+                    <td>{{ rolka.dlugosc|floatformat:1 }} mb</td>
+                    <td>{{ rolka.szerokosc }}</td>
+                    <td>
+                        {% for each in rolka.wpisymagazynpowiazania_set.all %}
+                        {{ each.dziennik.nr }}
+                        <a href="{% url 'magazyntkanin:podaj_dzienniki' %}?radio=wydane&dziennik={{each.dziennik.nr}}"><i class="glyphicon glyphicon-list-alt"></i></a><br />
+                        {% endfor %}
+                    </td>
+                    <td>{{ rolka.data_dostawy }}</td>
+		    <td><input class="form-control" type="checkbox" name={{rolka.pk}} id={{rolka.rolka_id}}></td> 
+
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+	<div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+	    <button type="submit" class="btn btn-primary">CZY USUWAMY? NIEODWRACALNE!!!</button>
+	</div>
+    </div>
+   </form>
+</div>
+{% endblock body %}

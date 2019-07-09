@@ -66,6 +66,7 @@ urlpatterns = [
     url(r'^magazyn/inwentura_c/$', views.czysc_po_inw, name='inwentura_c'),
     url(r'^magazyn/sprzedaz_r/$', views.magazyn_sprzedaz_rep, name='sprzedaz_rep'),
     url(r'^magazyn/inwentura_usun/$', views.inw_do_usuniecia, name='inwentura_usun'),
+    url(r'^magazyn/zerowe_do_usuniecia/$', views.zerowe_do_usuniecia, name='zerowe_do_usuniecia'),
     url(r'^magazyn/inwentura_usun_finalnie/$', views.inw_usuwamy, name='inwentura_usun_finalnie'),
     url(r'^magazyn/archiwizuj_inwenture/$', views.archiwizuj_inwenture, name='archiwizuj_inwenture'),
     url(r'^magazyn/inw_pdf/$', views.raport_inw, name='inw_pdf'),

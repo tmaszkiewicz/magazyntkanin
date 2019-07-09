@@ -1,5 +1,5 @@
 {% load static %}
-
+{% load mathfilters %}
 <!DOCTYPE html>
 <html lang="pl">
 <head>
@@ -32,6 +32,10 @@
         text-align: center;
         color: red;
     }
+    input[type=checkbox] {
+    	transform: scale(0.5);
+    }
+	
     </style>
     {% block css %}
     	
