@@ -436,7 +436,10 @@ def magazyn_inwentura_grupowana(request):
                 # Nastepny wiersz  należaloby zoptymalizowac, bo zjada mnostwo czasu !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
                 #j['dlPerIndeks']=Tkanina.objects.get(index_sap=j['index_tkaniny']).ilosc_na_magazynie() ### NA RAZIE NA SZTYWNO, POTEM DODAJ ZLICZANIE
                 #j['dlPerIndeks']=Tkanina.objects.get(index_sap=ind_old).ilosc_na_magazynie() ### NA RAZIE NA SZTYWNO, POTEM DODAJ ZLICZANIE
-                j['dlPerIndeks']=round(ilosc_,1)
+                try:
+                    j['dlPerIndeks']=round(ilosc_,1)
+                except:
+                    print(f"Ilosc przy bledzie {ilosc_}")
                 #j['dlPerIndeks']=Tkanina.objects.filter(index_sap=ind_old).aggregate(Sum('dlugosc')) ### NA RAZIE NA SZTYWNO, POTEM DODAJ ZLICZANIE
                 
 
@@ -466,6 +469,7 @@ def magazyn_inwentura_grupowana(request):
             #inw3 = [x for x in inw3 if x['index_tkaniny'] ==  int(index_tkaniny) ]
         
         functions.generuj_raport_inwentury2(inw3)
+        functions.generuj_raport_inwentury3(inw3)
         functions.generuj_raport_xls(inw3)
         functions.generuj_xls_porownanie_sap(inw3)
 
@@ -2315,6 +2319,7 @@ def do_usuniecia(request):
     context = {
     }    
     Rolka.objects.filter(do_usuniecia=True).delete()
+    print("aaaa")
     return render(request,url,context)
    
 

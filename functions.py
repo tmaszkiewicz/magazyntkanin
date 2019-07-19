@@ -383,6 +383,147 @@ def generuj_xls_porownanie_sap(inw):
 
     #wb.save('inw.xlsx')
 
+def generuj_raport_inwentury3(inw):
+
+    from reportlab.platypus import Table, TableStyle, Paragraph, SimpleDocTemplate
+    #from reportlab.platypus import Table, TableStyle, Paragraph, 
+    from reportlab.lib import colors
+    from reportlab.pdfgen import canvas
+    from reportlab.lib.pagesizes import A4
+    from reportlab.pdfbase import pdfmetrics
+    from reportlab.pdfbase.ttfonts import TTFont
+    from reportlab.lib.styles import getSampleStyleSheet
+    from reportlab.platypus.doctemplate import PageTemplate, BaseDocTemplate, PageBreak, NextPageTemplate
+    c = canvas.Canvas('tmp/inv.pdf', pagesize=A4)
+    width, height = A4
+    
+    top = 70
+    left=50
+    rowsForPage = 700
+    cols = [ x*80+left for x in range(6)]
+    print(cols)
+
+    # dodanie czcionek
+    pdfmetrics.registerFont(TTFont('AlegreyaSC', 'magazyntkanin/static/fonts/Alegreya_SC/AlegreyaSC-Bold.ttf'))
+    # paragraf
+    stylesheet=getSampleStyleSheet()
+    styleN = stylesheet['Normal']
+    styleN.fontSize = 17
+
+    p = Paragraph(u'<para align="center"><b>RAPORT INWENTARYZACJI</b></para>', styleN)
+    w,h = p.wrap(width, 200)
+    p.drawOn(c, 5, height -50)
+
+    #korekty = Log.objects.filter(typ="INWENTURA")
+
+    c.setFont("Times-Bold", 8)
+    row = 10
+    page = 1
+
+    c.drawString(width/2-4, 10, "str. "+str(page))
+
+    for i in inw:
+        if i['isPrinted']:
+            None
+            #row+=10
+            #c.drawString(cols[0], height-(row % rowsForPage), str(i['nazwa_tkaniny']))
+            #c.drawString(cols[1], height-(row % rowsForPage), str(i['index_tkaniny']))
+            #c.drawString(cols[2], height-(row % rowsForPage), str(i['dlPerIndeks']))
+            #c.drawString(cols[3], height-(row % rowsForPage), str(i['dlPerIndeks_inw']))
+        else:
+            None
+        if i['typ'] == 'INWENTURA':
+            c.setFont("Times-Bold", 8)
+            #color = red
+        else:
+            c.setFont("Times-Roman", 8)
+                
+        if i['isPrinted']:
+            row+=20
+            # row % rowsForPage - zeruje sie na modulo i ostatni wiersz ze strony trafia na poczatek
+            # trzeba chyba obliczac height-(row % rowsForPage i jesli row % rowsForPag 0 to max na stronie
+            
+            c.drawString(cols[0], modulo_no_zero(row,rowsForPage,top,height), str(i['nazwa_tkaniny']))
+            c.drawString(cols[1], modulo_no_zero(row,rowsForPage,top,height), str(i['index_tkaniny']))
+            c.drawString(cols[2], modulo_no_zero(row,rowsForPage,top,height), str(i['dlPerIndeks']))
+            c.drawString(cols[3], modulo_no_zero(row,rowsForPage,top,height), str(i['dlPerIndeks_inw']))
+            row+10
+            c.drawString(cols[0], modulo_no_zero(row,rowsForPage,top,height), "__________________________________________________________________________________")
+            row+=10
+            c.drawString(cols[0], modulo_no_zero(row,rowsForPage,top,height), "Nazwa_tkaniny")
+            c.drawString(cols[1], modulo_no_zero(row,rowsForPage,top,height), "index_tkaniny")
+            c.drawString(cols[2], modulo_no_zero(row,rowsForPage,top,height), "rolka_id")
+            c.drawString(cols[3], modulo_no_zero(row,rowsForPage,top,height), "przed korekta")
+            c.drawString(cols[4], modulo_no_zero(row,rowsForPage,top,height), "po korekcie")
+            c.drawString(cols[5], modulo_no_zero(row,rowsForPage,top,height), "data/godzina")
+            row+=10
+            c.drawString(cols[0], modulo_no_zero(row,rowsForPage,top,height), str(i['nazwa_tkaniny']))
+            c.drawString(cols[1], modulo_no_zero(row,rowsForPage,top,height), str(i['index_tkaniny']))
+            c.drawString(cols[2], modulo_no_zero(row,rowsForPage,top,height), str(i['rolka_id']))
+            c.drawString(cols[3], modulo_no_zero(row,rowsForPage,top,height), str(i['dlugosc_rolki']))
+            c.drawString(cols[4], modulo_no_zero(row,rowsForPage,top,height), str(i['dlugosc_elementu']))
+
+            #POPRAW DATY!
+            #PODZEL STRONY!
+            
+            #dt = datetime.fromtimestamp(int(str(i['timestamp']))).isoformat()
+            try:
+                c.drawString(cols[5], height-(row % rowsForPage)-top, str(i['timestamp'].strftime("%Y-%m-%d %H:%M")))
+            except:
+                None
+            
+        else:
+            row+=10
+            #hpos = modulo_no_zero(row,rowsForPage,top)
+            c.drawString(cols[2], modulo_no_zero(row,rowsForPage,top,height), str(i['rolka_id']))
+            c.drawString(cols[3], modulo_no_zero(row,rowsForPage,top,height), str(i['dlugosc_rolki']))
+            c.drawString(cols[4], modulo_no_zero(row,rowsForPage,top,height), str(i['dlugosc_elementu']))
+
+            #dt = datetime.fromtimestamp(1544778947).isoformat()
+            #dt = datetime.fromtimestamp(int(str(i['timestamp']))).isoformat()
+            #c.drawString(cols[5], modulo_no_zero(row,rowsForPage,top,height) , dt)
+            try:
+                c.drawString(cols[5], modulo_no_zero(row,rowsForPage,top,height) , str(i['timestamp'].strftime("%Y-%m-%d %H:%M")))
+            except:
+                None
+
+        if row % rowsForPage >= 690: 
+            c.showPage()
+            c.setFont("Times-Bold", 8)
+            page+=1
+            c.drawString(width/2-4, 10, "str. "+str(page))
+            row=10
+
+
+
+
+
+
+
+
+    #for korekta in korekty:
+    #    row +=10
+    #    c.drawString(cols[0], height-(row % rowsForPage), str(korekta.rolka_id))
+    #    c.drawString(cols[1], height-(row % rowsForPage), str(korekta.index_tkaniny))
+    #    c.drawString(cols[2], height-(row % rowsForPage), str(korekta.dlugosc_rolki))
+    #    c.drawString(cols[3], height-(row % rowsForPage), str(korekta.dlugosc_elementu))
+    #    dt = datetime.fromtimestamp(1544778947).isoformat()
+    #    c.drawString(cols[4], height-(row % rowsForPage), dt)
+        
+
+    #    c.drawString(width/2-4, 10, "str. "+str(page))
+    #    if(row % rowsForPage == 0): 
+    #        c.showPage()
+    #        c.setFont("Times-Bold", 8)
+    #        page+=1
+
+    #c.setFont("Times-Bold", 8)
+    #c.drawString(100, 10, "ME05")
+    #c.drawString(width-125, 10, "Dane w [mm]")
+
+    # zapis do pliku
+    c.showPage()
+    c.save()
 def generuj_raport_inwentury2(inw):
 
     from reportlab.platypus import Table, TableStyle, Paragraph, SimpleDocTemplate
