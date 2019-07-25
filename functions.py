@@ -384,9 +384,8 @@ def generuj_xls_porownanie_sap(inw):
     #wb.save('inw.xlsx')
 
 def generuj_raport_inwentury3(inw):
-
+    
     from reportlab.platypus import Table, TableStyle, Paragraph, SimpleDocTemplate
-    #from reportlab.platypus import Table, TableStyle, Paragraph, 
     from reportlab.lib import colors
     from reportlab.pdfgen import canvas
     from reportlab.lib.pagesizes import A4
@@ -396,12 +395,12 @@ def generuj_raport_inwentury3(inw):
     from reportlab.platypus.doctemplate import PageTemplate, BaseDocTemplate, PageBreak, NextPageTemplate
     c = canvas.Canvas('tmp/inv.pdf', pagesize=A4)
     width, height = A4
-    
+    r_tmp=0
+    info=""
     top = 70
     left=50
     rowsForPage = 700
     cols = [ x*80+left for x in range(6)]
-    print(cols)
 
     # dodanie czcionek
     pdfmetrics.registerFont(TTFont('AlegreyaSC', 'magazyntkanin/static/fonts/Alegreya_SC/AlegreyaSC-Bold.ttf'))
@@ -418,18 +417,17 @@ def generuj_raport_inwentury3(inw):
 
     c.setFont("Times-Bold", 8)
     row = 10
+    row_old=10
     page = 1
+    indeks = 0
+    ilosc_rolek = 0
 
     c.drawString(width/2-4, 10, "str. "+str(page))
 
     for i in inw:
+        indeks+=1
         if i['isPrinted']:
             None
-            #row+=10
-            #c.drawString(cols[0], height-(row % rowsForPage), str(i['nazwa_tkaniny']))
-            #c.drawString(cols[1], height-(row % rowsForPage), str(i['index_tkaniny']))
-            #c.drawString(cols[2], height-(row % rowsForPage), str(i['dlPerIndeks']))
-            #c.drawString(cols[3], height-(row % rowsForPage), str(i['dlPerIndeks_inw']))
         else:
             None
         if i['typ'] == 'INWENTURA':
@@ -439,89 +437,67 @@ def generuj_raport_inwentury3(inw):
             c.setFont("Times-Roman", 8)
                 
         if i['isPrinted']:
-            row+=20
-            # row % rowsForPage - zeruje sie na modulo i ostatni wiersz ze strony trafia na poczatek
-            # trzeba chyba obliczac height-(row % rowsForPage i jesli row % rowsForPag 0 to max na stronie
+            row+=20 ###
             
             c.drawString(cols[0], modulo_no_zero(row,rowsForPage,top,height), str(i['nazwa_tkaniny']))
-            c.drawString(cols[1], modulo_no_zero(row,rowsForPage,top,height), str(i['index_tkaniny']))
-            c.drawString(cols[2], modulo_no_zero(row,rowsForPage,top,height), str(i['dlPerIndeks']))
-            c.drawString(cols[3], modulo_no_zero(row,rowsForPage,top,height), str(i['dlPerIndeks_inw']))
+            c.drawString(cols[1], modulo_no_zero(row,rowsForPage,top,height), "Index: "+str(i['index_tkaniny']))
+            c.drawString(cols[2], modulo_no_zero(row,rowsForPage,top,height), "DL wg. stanow: "+str(i['dlPerIndeks']))
+            c.drawString(cols[3], modulo_no_zero(row,rowsForPage,top,height), "Dl wg. inwent: "+str(i['dlPerIndeks_inw']))
+            ilosc_rolek=0
             row+10
-            c.drawString(cols[0], modulo_no_zero(row,rowsForPage,top,height), "__________________________________________________________________________________")
-            row+=10
-            c.drawString(cols[0], modulo_no_zero(row,rowsForPage,top,height), "Nazwa_tkaniny")
-            c.drawString(cols[1], modulo_no_zero(row,rowsForPage,top,height), "index_tkaniny")
-            c.drawString(cols[2], modulo_no_zero(row,rowsForPage,top,height), "rolka_id")
-            c.drawString(cols[3], modulo_no_zero(row,rowsForPage,top,height), "przed korekta")
-            c.drawString(cols[4], modulo_no_zero(row,rowsForPage,top,height), "po korekcie")
-            c.drawString(cols[5], modulo_no_zero(row,rowsForPage,top,height), "data/godzina")
-            row+=10
-            c.drawString(cols[0], modulo_no_zero(row,rowsForPage,top,height), str(i['nazwa_tkaniny']))
-            c.drawString(cols[1], modulo_no_zero(row,rowsForPage,top,height), str(i['index_tkaniny']))
-            c.drawString(cols[2], modulo_no_zero(row,rowsForPage,top,height), str(i['rolka_id']))
-            c.drawString(cols[3], modulo_no_zero(row,rowsForPage,top,height), str(i['dlugosc_rolki']))
-            c.drawString(cols[4], modulo_no_zero(row,rowsForPage,top,height), str(i['dlugosc_elementu']))
-
-            #POPRAW DATY!
-            #PODZEL STRONY!
+            c.drawString(cols[0], modulo_no_zero(row,rowsForPage,top,height), "_________________________________________________________________________________________________________")
+            #row+=10
             
-            #dt = datetime.fromtimestamp(int(str(i['timestamp']))).isoformat()
+            info=""
+            r_tmp=0
+            info+=str(i['rolka_id'])+"-"+str(i['dlugosc_elementu'])+", "
+            ilosc_rolek+=1
+            r_tmp+=1
+	#	24.07.2019 - tab problem
+	
+	
             try:
-                c.drawString(cols[5], height-(row % rowsForPage)-top, str(i['timestamp'].strftime("%Y-%m-%d %H:%M")))
+                if inw[indeks]['isPrinted']:
+                    row+=10
+                    c.drawString(cols[1], modulo_no_zero(row,rowsForPage,top,height), info)
+                    row+=10
+                    c.drawString(cols[1], modulo_no_zero(row,rowsForPage,top,height), "Razem:" +  str(ilosc_rolek))
+                    
+                    #c.drawString(cols[5],modulo_no_zero(row,rowsForPage,top,height), str(ilosc_rolek)) ## rolki
             except:
                 None
             
         else:
-            row+=10
-            #hpos = modulo_no_zero(row,rowsForPage,top)
-            c.drawString(cols[2], modulo_no_zero(row,rowsForPage,top,height), str(i['rolka_id']))
-            c.drawString(cols[3], modulo_no_zero(row,rowsForPage,top,height), str(i['dlugosc_rolki']))
-            c.drawString(cols[4], modulo_no_zero(row,rowsForPage,top,height), str(i['dlugosc_elementu']))
-
-            #dt = datetime.fromtimestamp(1544778947).isoformat()
-            #dt = datetime.fromtimestamp(int(str(i['timestamp']))).isoformat()
-            #c.drawString(cols[5], modulo_no_zero(row,rowsForPage,top,height) , dt)
-            try:
-                c.drawString(cols[5], modulo_no_zero(row,rowsForPage,top,height) , str(i['timestamp'].strftime("%Y-%m-%d %H:%M")))
-            except:
-                None
-
-        if row % rowsForPage >= 690: 
+        
+            if r_tmp<=7:
+                info+=str(i['rolka_id'])+"-"+str(i['dlugosc_elementu'])+", "
+                r_tmp+=1
+                ilosc_rolek+=1
+                try:
+                    if inw[indeks]['isPrinted']:
+                        if i['index_tkaniny']==11457:
+                            print(i['rolka_id'],info)
+                        row+=10
+                        c.drawString(cols[1], modulo_no_zero(row,rowsForPage,top,height), info)
+                        
+                        row+=10
+                        c.drawString(cols[1], modulo_no_zero(row,rowsForPage,top,height), "Razem:" +  str(ilosc_rolek))
+                except:
+                    None
+            else:
+                ilosc_rolek+=1
+                r_tmp=0
+                row+=10
+                c.drawString(cols[1], modulo_no_zero(row,rowsForPage,top,height), info)
+                info=""
+        if row % rowsForPage >= 670: 
             c.showPage()
             c.setFont("Times-Bold", 8)
             page+=1
             c.drawString(width/2-4, 10, "str. "+str(page))
             row=10
-
-
-
-
-
-
-
-
-    #for korekta in korekty:
-    #    row +=10
-    #    c.drawString(cols[0], height-(row % rowsForPage), str(korekta.rolka_id))
-    #    c.drawString(cols[1], height-(row % rowsForPage), str(korekta.index_tkaniny))
-    #    c.drawString(cols[2], height-(row % rowsForPage), str(korekta.dlugosc_rolki))
-    #    c.drawString(cols[3], height-(row % rowsForPage), str(korekta.dlugosc_elementu))
-    #    dt = datetime.fromtimestamp(1544778947).isoformat()
-    #    c.drawString(cols[4], height-(row % rowsForPage), dt)
-        
-
-    #    c.drawString(width/2-4, 10, "str. "+str(page))
-    #    if(row % rowsForPage == 0): 
-    #        c.showPage()
-    #        c.setFont("Times-Bold", 8)
-    #        page+=1
-
-    #c.setFont("Times-Bold", 8)
-    #c.drawString(100, 10, "ME05")
-    #c.drawString(width-125, 10, "Dane w [mm]")
-
-    # zapis do pliku
+    row+=10
+    c.drawString(cols[1], modulo_no_zero(row,rowsForPage,top,height), info)
     c.showPage()
     c.save()
 def generuj_raport_inwentury2(inw):

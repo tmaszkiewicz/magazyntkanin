@@ -386,8 +386,13 @@ def magazyn_inwentura_grupowana(request):
                     inw2['nazwa_tkaniny']=Tkanina.objects.filter(index_sap=i.index_tkaniny)[0].nazwa
                     inw2['rolka_id']=i.rolka_id
                     inw2['index_tkaniny']=i.index_tkaniny
-                    inw2['dlugosc_rolki']=i.dlugosc_rolki
-                    inw2['dlugosc_elementu']=i.dlugosc_elementu
+                    try:
+                        inw2['dlugosc_rolki']=round(i.dlugosc_rolki,2)
+                        inw2['dlugosc_elementu']=round(i.dlugosc_elementu,2)
+                    except:
+                        inw2['dlugosc_rolki']=i.dlugosc_rolki
+                        inw2['dlugosc_elementu']=i.dlugosc_elementu
+
                     inw2['typ']=i.typ
                     inw2['timestamp']=i.timestamp
                     inw2['isPrinted']=True
@@ -462,6 +467,7 @@ def magazyn_inwentura_grupowana(request):
                     k['isPrinted']=True
                 else:
                      k['isPrinted']=False
+                     #k['ile_rolek']+=1
                 ind_o=k['index_tkaniny']
 
 
