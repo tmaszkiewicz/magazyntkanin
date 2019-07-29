@@ -405,8 +405,10 @@ def magazyn_inwentura_grupowana(request):
         dlPerIndeks = 0
         dlPerIndeks_inw = 0
         #ZLICZAMY DLUGOSC INDEKSU 
+        ile_rolek=0
         for i in inw3:
             if ind_old != i['index_tkaniny']:
+            
                 
                 dlPerIndeks_inw = 0
                 i['isPrinted']=True
@@ -422,7 +424,9 @@ def magazyn_inwentura_grupowana(request):
                 i['dlPerIndeks']=dlPerIndeks
                 
                 i['dlPerIndeks_inw']=dlPerIndeks_inw
+
             else:
+
                 i['isPrinted']=False
                 #print(i['dlugosc_elementu'],dlPerIndeks)
                 if i['dlugosc_elementu']!=None:
@@ -436,7 +440,12 @@ def magazyn_inwentura_grupowana(request):
             ind_old=i['index_tkaniny']
             #przeniesc do czesci ze zmiana ind_old
             ilosc_= Tkanina.objects.get(index_sap=ind_old).ilosc_na_magazynie()
+            ile_rolek=0
+            ile_rolek_inw=0
             for j in filter(lambda x: x['index_tkaniny'] == ind_old, inw3):
+                ile_rolek+=1
+                if j['typ']=="INWENTURA":
+                    ile_rolek_inw+=1
 
                 # Nastepny wiersz  należaloby zoptymalizowac, bo zjada mnostwo czasu !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
                 #j['dlPerIndeks']=Tkanina.objects.get(index_sap=j['index_tkaniny']).ilosc_na_magazynie() ### NA RAZIE NA SZTYWNO, POTEM DODAJ ZLICZANIE
@@ -450,6 +459,8 @@ def magazyn_inwentura_grupowana(request):
 
                 # wlasnie ten powyzej !!!!!!!
                 j['dlPerIndeks_inw']=round(dlPerIndeks_inw,2)
+                i['ile_rolek']=ile_rolek # i->j 26.07.2019 - bload zliczania
+                i['ile_rolek_inw']=ile_rolek_inw # i->j 26.07.2019 - bload zliczania
             
         
     #SPRAWDZIC POSZCZEGOLNE WARIANTY - DZIALA INWENTURA ARCH, NIE WIADOMO JAK Z BIEZACA INW. i POZOSTALE

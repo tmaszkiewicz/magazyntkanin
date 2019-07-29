@@ -443,6 +443,8 @@ def generuj_raport_inwentury3(inw):
             c.drawString(cols[1], modulo_no_zero(row,rowsForPage,top,height), "Index: "+str(i['index_tkaniny']))
             c.drawString(cols[2], modulo_no_zero(row,rowsForPage,top,height), "DL wg. stanow: "+str(i['dlPerIndeks']))
             c.drawString(cols[3], modulo_no_zero(row,rowsForPage,top,height), "Dl wg. inwent: "+str(i['dlPerIndeks_inw']))
+            c.drawString(cols[4], modulo_no_zero(row,rowsForPage,top,height), "Rolek: "+str(i['ile_rolek']))#
+            c.drawString(cols[5], modulo_no_zero(row,rowsForPage,top,height), "Inw: "+str(i['ile_rolek_inw']))#
             ilosc_rolek=0
             row+10
             c.drawString(cols[0], modulo_no_zero(row,rowsForPage,top,height), "_________________________________________________________________________________________________________")
@@ -460,8 +462,8 @@ def generuj_raport_inwentury3(inw):
                 if inw[indeks]['isPrinted']:
                     row+=10
                     c.drawString(cols[1], modulo_no_zero(row,rowsForPage,top,height), info)
-                    row+=10
-                    c.drawString(cols[1], modulo_no_zero(row,rowsForPage,top,height), "Razem:" +  str(ilosc_rolek))
+                    #row+=10
+                    #c.drawString(cols[1], modulo_no_zero(row,rowsForPage,top,height), "Razem:" +  str(ilosc_rolek))
                     
                     #c.drawString(cols[5],modulo_no_zero(row,rowsForPage,top,height), str(ilosc_rolek)) ## rolki
             except:
@@ -475,18 +477,17 @@ def generuj_raport_inwentury3(inw):
                 ilosc_rolek+=1
                 try:
                     if inw[indeks]['isPrinted']:
-                        if i['index_tkaniny']==11457:
-                            print(i['rolka_id'],info)
                         row+=10
                         c.drawString(cols[1], modulo_no_zero(row,rowsForPage,top,height), info)
                         
-                        row+=10
-                        c.drawString(cols[1], modulo_no_zero(row,rowsForPage,top,height), "Razem:" +  str(ilosc_rolek))
+                        #row+=10
+                        #c.drawString(cols[1], modulo_no_zero(row,rowsForPage,top,height), "Razem:" +  str(ilosc_rolek))
                 except:
                     None
             else:
                 ilosc_rolek+=1
                 r_tmp=0
+                info+=str(i['rolka_id'])+"-"+str(i['dlugosc_elementu'])+", " #aaa
                 row+=10
                 c.drawString(cols[1], modulo_no_zero(row,rowsForPage,top,height), info)
                 info=""
@@ -498,6 +499,8 @@ def generuj_raport_inwentury3(inw):
             row=10
     row+=10
     c.drawString(cols[1], modulo_no_zero(row,rowsForPage,top,height), info)
+    #row+=10
+    #c.drawString(cols[1], modulo_no_zero(row,rowsForPage,top,height), "Razem:" +  str(ilosc_rolek))
     c.showPage()
     c.save()
 def generuj_raport_inwentury2(inw):
