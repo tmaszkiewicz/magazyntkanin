@@ -1,0 +1,68 @@
+{% extends "magazyntkanin/base.html" %}
+
+
+{% block body %}
+<div class="row" style="margin-top: 80px;">
+    <div class="col-xs-2 col-sm-2 col-md-2 col-lg-2">
+
+    </div>
+    <div class="col-xs-8 col-sm-8 col-md-8 col-lg-8">
+        <form action="{% url 'magazyntkanin:tkanina_dziennik' %}" method="GET" role="form">
+            <div class="form-group col-xs-3 col-sm-3 col-md-3 col-lg-3">
+                <label for="tkanina" style="margin-top:10px;">Index tkaniny</label>
+                <input type="text" class="form-control" id="" placeholder="" name="tkanina">                
+                <label for="Nazwa tkaniny" style="margin-top:10px;">Nazwa tkaniny</label>
+                <input type="text" class="form-control" id="" placeholder="" name="Nazwa_tkaniny">
+
+            </div>
+            <div class="row">
+                <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                    <button type="submit" class="btn btn-primary">Wyszukaj</button>                
+                </div>
+            </div>            
+        </form>        
+    </div>
+    
+</div>
+<!--
+<div class="row text-center">    
+    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+        <h4 class="errors">{{error}}</h4>
+        <h4 class="errors">{{test}}</h4>
+    </div>
+</div>
+-->
+<div class="row" style="margin-top: 80px;">
+    <div class="col-xs-1 col-sm-1 col-md-1 col-lg-1" style="margin-top: 50px;">
+    </div>
+    <div class="col-xs-10 col-sm-10 col-md-10 col-lg-10">
+        <h2>Znaleziono {{wpisy.count}} wpisów:</h2>        
+        <table class="table table-hover">
+            <thead>
+                <tr>
+                    <th></th>
+                    <th>Dzienniki</th>
+                    <th>Nr rolki</th>
+                    <th>Długość</th>
+                </tr>
+            </thead>
+            <tbody>
+	
+                {% for rolka in wpisy %}                
+                <tr>
+                    <td>
+                        {{ rolka.pk }}
+                        <a href="{% url 'magazyntkanin:statystyki_rolka' rolka=rolka.pk %}"><i class="glyphicon glyphicon-list-alt"></i></a>
+                    </td>
+                    <td>
+                        <a href="?tkanina={{rolka.tkanina.index_sap}}">{{ rolka.tkanina }}</a>
+                        <a href="{% url 'magazyntkanin:statystyki_tkanina' tkanina=rolka.tkanina.index_sap %}"><i class="glyphicon glyphicon-list-alt"></i></a>
+                    </td>
+                    <td>{{ rolka.nr_rolki }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock body %}

@@ -433,6 +433,10 @@ class TkaninyXlsx(models.Model):
         uploaded_at = models.DateTimeField(auto_now_add=True)
         data_dostawy = models.DateField(default=None, blank=True, null=True)
 
+class FgkComment(models.Model):
+        job_name  = models.CharField(max_length=255, blank=True)
+        job_comm  = models.CharField(max_length=255, blank=True)
+
 # -------------- FORMS --------------
 class RolkaForm(forms.ModelForm):
     class Meta:

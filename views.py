@@ -336,11 +336,14 @@ def magazyn_inwentura_grupowana(request):
 
                 
 
+            #elif int(status)==4:
+            #    typ_inwentury="INWENTURA_22122018"
+            #    inw = Log.objects.filter(index_tkaniny__startswith=index_tkaniny,typ=typ_inwentury).order_by('rolka_id','-timestamp').distinct('rolka_id')
+            #elif int(status)==5:
+            #    typ_inwentury="INWENTURA_06022019"
+            #    inw = Log.objects.filter(index_tkaniny__startswith=index_tkaniny,typ=typ_inwentury).order_by('rolka_id','-timestamp').distinct('rolka_id')
             elif int(status)==4:
-                typ_inwentury="INWENTURA_22122018"
-                inw = Log.objects.filter(index_tkaniny__startswith=index_tkaniny,typ=typ_inwentury).order_by('rolka_id','-timestamp').distinct('rolka_id')
-            elif int(status)==5:
-                typ_inwentury="INWENTURA_06022019"
+                typ_inwentury="INWENTURA_26072019"
                 inw = Log.objects.filter(index_tkaniny__startswith=index_tkaniny,typ=typ_inwentury).order_by('rolka_id','-timestamp').distinct('rolka_id')
     
         else:
@@ -369,11 +372,14 @@ def magazyn_inwentura_grupowana(request):
                 #context['inw'] = inw3
                 #return render(request, url, context)
                 
+            #elif int(status)==4:
+            #    typ_inwentury="INWENTURA_22122018"
+            #    inw = Log.objects.filter(typ=typ_inwentury).order_by('rolka_id','-timestamp').distinct('rolka_id')
+            #elif int(status)==5:
+            #    typ_inwentury="INWENTURA_06022019"
+            #    inw = Log.objects.filter(typ=typ_inwentury).order_by('rolka_id','-timestamp').distinct('rolka_id')
             elif int(status)==4:
-                typ_inwentury="INWENTURA_22122018"
-                inw = Log.objects.filter(typ=typ_inwentury).order_by('rolka_id','-timestamp').distinct('rolka_id')
-            elif int(status)==5:
-                typ_inwentury="INWENTURA_06022019"
+                typ_inwentury="INWENTURA_26072019"
                 inw = Log.objects.filter(typ=typ_inwentury).order_by('rolka_id','-timestamp').distinct('rolka_id')
 
         ind_old=0
@@ -556,7 +562,7 @@ def inw_do_usuniecia(request):
     #2 ) http://jan-svr-docker:8000/magazyn/inwentura_usun_finalnie/ (views.inw_usuwamy) 
     #3 ) http://jan-svr-docker:8000/magazyn/archiwizuj_inwenture/ (views.archiwizuj_inwenture)
     rolki= []
-    dd= datetime.strptime("2019-02-06 00:00:01.78200", "%Y-%m-%d %H:%M:%S.%f").date()
+    dd= datetime.strptime("2019-07-25 00:00:01.78200", "%Y-%m-%d %H:%M:%S.%f").date()
     for i in Rolka.objects.all():   # DLA PELNEJ INWENTURY
     ##for i in Rolka.objects.filter(tkanina__index_sap=12641):  # DLA INWENTURY TKANINY
         
@@ -586,7 +592,7 @@ def inw_usuwamy(request):
     return HttpResponse("OK")
 def archiwizuj_inwenture(request):
     for i in Log.objects.filter(typ='INWENTURA'):
-        i.typ='INWENTURA_06022019'
+        i.typ='INWENTURA_26072019'
         i.save()
     #for i in Log.objects.filter(typ='INWENTURA_22122019'):
     #    i.typ='INWENTURA_22122018'
@@ -688,6 +694,13 @@ def raporty(request):
         context['wpisy'] = q
         return render(request, url, context)
     return render(request, url, context)
+def tkanina_dziennik(request):
+    url = 'magazyntkanin/tkanina_dziennik.html'
+    context = {
+
+    }
+    
+    return render(request,url,context)
 
 def sap_generator(request, nr_dziennika):
     url = 'magazyntkanin/sap.html'
@@ -727,6 +740,7 @@ def test_statystki(rolka):
         Q(typ="INWENTURA") |
         Q(typ="INWENTURA_22122019") |
         Q(typ="INWENTURA_06022019") |
+        Q(typ="INWENTURA_26072019") |
         Q(typ="WPIS_MAGAZYN_ZWROT")).order_by('-timestamp')
 
     log_fgk = log.filter(
@@ -2354,3 +2368,29 @@ def czysc_zliczanie(request):
                 
 
     return render(request,url,context)
+@csrf_exempt
+def fgk_read(request):
+    job_name = request.POST['job_name']
+    try:
+        fg =  FgkComment.objects.get(job_name=job_name)
+    except Exception as e:
+        ErrorLog.objects.create(error=e, post=request.POST, funkcja=request.get_full_path())
+        return HttpResponse("False")
+    return HttpResponse(fg.job_comm)
+@csrf_exempt
+def fgk_write(request):
+    job_name = request.POST['job_name']
+    job_comm = request.POST['job_comm']
+    print(job_comm,job_name)
+    
+    try:
+        fg =  FgkComment.objects.get(job_name=job_name)
+        fg.job_comm=job_comm
+        fg.job_name=job_name        
+
+        fg.save();
+    except Exception as e:
+        fg =  FgkComment.objects.create(job_name=job_name,job_comm=job_comm)
+        ErrorLog.objects.create(error=e, post=request.POST, funkcja=request.get_full_path())
+        return HttpResponse("False")
+    return HttpResponse(fg.job_comm)
