@@ -58,16 +58,6 @@
                     <div class="form-group col-xs-4 col-md-4">
                     </div>
                 </div>                
-                <div class="row">
-                    <div class="form-group col-lg-4 col-lg-4">
-                    </div>
-                    <div class="form-group col-lg-4 col-lg-4">
-                        <label class="control-label" for="dostawca">Dostawca</label>
-                        <input class="form-control" style="width: 100%" type="text" id="dostawca" name="dostawca">
-                    </div>
-                    <div class="form-group col-xs-4 col-md-4">
-                    </div>
-                </div>
                 <div class="row" style="margin-top: 20px;">
                     <textarea name="mass" id="inputMass" class="form-control text-center" rows="3" required="required" style="width: 50%; height: 100px;" placeholder="index tkaniny, ilość"></textarea>
                 </div>
@@ -100,8 +90,7 @@ $(document).ready(function() {
             var dane = {
                 'mass': $('#inputMass').val(),
                 'zamowienie': $('#zamowienie').val(),
-                'data-przyjecia': $('#data-przyjecia-mass').val(),
-		'dostawca': $('#dostawca').val()
+                'data-przyjecia': $('#data-przyjecia-mass').val()
             };
         } else {
             var dane = {
@@ -118,7 +107,6 @@ $(document).ready(function() {
                 data: dane,
             })
             .done(function(response) {
-		
                 $('#message').html("<span class='label label-default text-center'>" + response + "</span>")
                 console.log("success");
             })

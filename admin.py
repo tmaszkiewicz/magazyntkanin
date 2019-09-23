@@ -15,7 +15,7 @@ class WpisySzwalniaAdmin(admin.ModelAdmin):
     search_fields = ['dziennik__nr', 'tkanina__nazwa', 'TA']
 
 class RolkaAdmin(admin.ModelAdmin):
-	search_fields = ['pk', 'barcode', 'tkanina__nazwa']
+	search_fields = ['pk', 'barcode', 'tkanina__nazwa', 'dostawca']
 class Rolka_usunietaAdmin(admin.ModelAdmin):
 	search_fields = ['pk', 'barcode']
 
@@ -27,6 +27,8 @@ class DziennikAdmin(admin.ModelAdmin):
 
 class TkaninaAdmin(admin.ModelAdmin):
 	search_fields = ['nazwa']
+class FgkCommentAdmin(admin.ModelAdmin):
+	search_fields = ['job_name']
 # Register your models here.
 admin.site.register(Dziennik, DziennikAdmin)
 admin.site.register(Tkanina,TkaninaAdmin)
@@ -40,3 +42,5 @@ admin.site.register(Log, LogAdmin)
 admin.site.register(ErrorLog, ErrorLogAdmin)
 admin.site.register(Rolka_usunieta, Rolka_usunietaAdmin)
 admin.site.register(Rolka_zliczana, Rolka_zliczanaAdmin)
+admin.site.register( FgkComment, FgkCommentAdmin)
+

@@ -436,6 +436,15 @@ class TkaninyXlsx(models.Model):
 class FgkComment(models.Model):
         job_name  = models.CharField(max_length=255, blank=True)
         job_comm  = models.CharField(max_length=255, blank=True)
+        #job_mrklen = models.CharField(max_length=255, blank=True)
+        #job_mrkw = models.CharField(max_length=255, blank=True)
+        #job_eff = models.CharField(max_length=255, blank=True)
+        #job_partqnt = models.CharField(max_length=255, blank=True)
+        #job_cr_date = models.CharField(max_length=255, blank=True)
+        #job_mrknotchqty = models.CharField(max_length=255, blank=True)
+        
+        
+        
 
 # -------------- FORMS --------------
 class RolkaForm(forms.ModelForm):

@@ -697,9 +697,33 @@ def raporty(request):
 def tkanina_dziennik(request):
     url = 'magazyntkanin/tkanina_dziennik.html'
     context = {
+    
 
     }
     
+    if request.GET:
+        if(request.GET.get('tkanina')):
+            tkanina = request.GET.get('tkanina')
+        else:
+            if(request.GET.get('Nazwa_tkaniny')):
+                try:
+                    nazwa_tkaniny = request.GET.get('Nazwa_tkaniny')
+                    tkanina = Tkanina.objects.get(nazwa=nazwa_tkaniny).index_sap
+                except:
+                 return render(request,url,context)
+                    
+            else:
+                 return render(request,url,context)
+
+        if (request.GET.get('zakonczone')=="on"):
+            
+            wpisy = WpisyMagazynPowiazania.objects.filter(rolka__tkanina__index_sap=tkanina)
+        else:
+            wpisy = WpisyMagazynPowiazania.objects.filter(rolka__tkanina__index_sap=int(tkanina),rolka__zakonczona=False)
+    try:
+        context['wpisy']=wpisy
+    except:
+        None
     return render(request,url,context)
 
 def sap_generator(request, nr_dziennika):

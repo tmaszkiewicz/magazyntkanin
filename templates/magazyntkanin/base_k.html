@@ -49,6 +49,7 @@
                     <li {% if request.resolver_match.url_name == obiegowki %}class='active'{% endif %} role="presentation"><a href="{% url 'magazyntkanin:krojownia_obiegowki' %}" style="font-family:'Alegreya SC', serif;font-size:20px;">Obiegówki</a></li>
                     <li {% if request.resolver_match.url_name == edytuj %}class='active'{% endif %} role="presentation"><a href="{% url 'magazyntkanin:krojowania_edycja' %}" style="font-family:'Alegreya SC', serif;font-size:20px;">Edytuj rolke</a></li>
                     <li role="presentation"><a href="{% url 'magazyntkanin:krojownia_raport' %}" style="font-family:'Alegreya SC', serif;font-size:20px;">Raporty </a></li>
+                   <li role="presentation"><a href="{% url 'magazyntkanin:tkanina_dziennik' %}" style="font-family:'Alegreya SC', serif;font-size:20px;">Tkanina - przypisania </a></li>
                 </ul>
             </div>
         </div>
