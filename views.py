@@ -1896,6 +1896,9 @@ def wpis(request):
 def sprawdz_dziennik(request):
     dziennik = Dziennik.objects.get(nr=request.POST['nr_dziennika'])
     try:
+            
+        dziennik.lokalizacja=True #23.09.2019 
+        dziennik.save()           #Zazaczenie lokalizacji dziennika True=Krojownia
         return HttpResponse(dziennik)
     except Exception as e:
         ErrorLog.objects.create(error=e, post=request.POST, funkcja=request.get_full_path())

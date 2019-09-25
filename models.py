@@ -34,6 +34,7 @@ class Dziennik(models.Model):
     """
     nr = models.IntegerField()
     data = models.DateField(default=None, blank=True, null=True)
+    lokalizacja = models.BooleanField(default=False)
 
     def ilosc_paczek(self):
         return self.paczki_set.all()
