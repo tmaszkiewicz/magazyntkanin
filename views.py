@@ -2408,16 +2408,38 @@ def fgk_read(request):
 def fgk_write(request):
     job_name = request.POST['job_name']
     job_comm = request.POST['job_comm']
+    job_mrklen = request.POST['job_mrklen']
+    job_mrkwidth = request.POST['job_mrkwidth']
+    job_mrknotchqty = request.POST['job_mrknotchqty']
+    job_eff = request.POST['job_eff']
+    job_partqnt = request.POST['job_partqnt']
+    job_cutt = request.POST['job_cutt']
+    job_cr_date = request.POST['job_cr_date']
+
+
+
+
+
+
+
+
     print(job_comm,job_name)
     
     try:
         fg =  FgkComment.objects.get(job_name=job_name)
         fg.job_comm=job_comm
-        fg.job_name=job_name        
+        #fg.job_name=job_name        
+        #fg.job_mrklen=job_mrklen
+        #fg.job_mrkwidth=job_mrkwidth
+        #fg.job_mrknotchqty=job_mrknotchqty
+        #fg.job_eff=job_eff
+        #fg.job_partqnt=job_partqnt
+        #fg.job_cutt=job_cutt
+        #fg.job_cr_date=job_cr_date
 
         fg.save();
     except Exception as e:
-        fg =  FgkComment.objects.create(job_name=job_name,job_comm=job_comm)
+        fg =  FgkComment.objects.create(job_name=job_name,job_comm=job_comm,job_mrklen=job_mrklen,job_mrkwidth=job_mrkwidth,job_mrknotchqty=job_mrknotchqty,job_eff=job_eff,job_partqnt=job_partqnt,job_cutt=job_cutt,job_cr_date=job_cr_date)
         ErrorLog.objects.create(error=e, post=request.POST, funkcja=request.get_full_path())
         return HttpResponse("False")
     return HttpResponse(fg.job_comm)
