@@ -2443,3 +2443,15 @@ def fgk_write(request):
         ErrorLog.objects.create(error=e, post=request.POST, funkcja=request.get_full_path())
         return HttpResponse("False")
     return HttpResponse(fg.job_comm)
+@csrf_exempt
+def fgk_lnwrite(request):
+    job_name = request.POST['job_name']
+    part = request.POST['part']
+    count1 = request.POST['ilosc']
+    try:
+        fgln =  FgkLine.objects.get_or_create(job_name=job_name,part=part,count=count1)
+        return HttpResponse(fgln.part)
+
+    except:
+        return HttpResponse(None)
+

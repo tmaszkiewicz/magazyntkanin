@@ -446,6 +446,10 @@ class FgkComment(models.Model):
         job_cutt= models.CharField(max_length=255, blank=True)
         
         
+class FgkLine(models.Model):
+        job_name  = models.CharField(max_length=255, blank=True)
+        part  = models.CharField(max_length=255, blank=True)
+        count = models.CharField(max_length=255, blank=True)
         
 
 # -------------- FORMS --------------

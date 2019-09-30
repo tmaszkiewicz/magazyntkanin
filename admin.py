@@ -29,6 +29,8 @@ class TkaninaAdmin(admin.ModelAdmin):
 	search_fields = ['nazwa']
 class FgkCommentAdmin(admin.ModelAdmin):
 	search_fields = ['job_name']
+class FgkLineAdmin(admin.ModelAdmin):
+	search_fields = ['job_name']
 # Register your models here.
 admin.site.register(Dziennik, DziennikAdmin)
 admin.site.register(Tkanina,TkaninaAdmin)
@@ -43,4 +45,5 @@ admin.site.register(ErrorLog, ErrorLogAdmin)
 admin.site.register(Rolka_usunieta, Rolka_usunietaAdmin)
 admin.site.register(Rolka_zliczana, Rolka_zliczanaAdmin)
 admin.site.register( FgkComment, FgkCommentAdmin)
+admin.site.register( FgkLine, FgkLineAdmin)
 

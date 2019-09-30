@@ -91,6 +91,7 @@ urlpatterns = [
     url(r'^scanner/infov2/$', views.informacje_v2, name='informacje_v2'),
     url(r'^scanner/fgkread/$', views.fgk_read, name='fgkread'),
     url(r'^scanner/fgkwrite/$', views.fgk_write, name='fgkwrite'),
+    url(r'^scanner/fgklnwrite/$', views.fgk_lnwrite, name='fgklnwrite'),
     url(r'^scanner/infotm/$', views.informacje_tm_test, name='informacje_tm_test'),
     url(r'^scanner/nesting/$', views.nesting, name='nesting'),
     url(r'^scanner/nl/$', views.nl, name='nl'),
