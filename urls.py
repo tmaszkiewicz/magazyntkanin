@@ -54,6 +54,7 @@ urlpatterns = [
     url(r'^krojownia/status/(?P<nr_dziennika>[0-9]+)/$', views.status_dziennika, name='status_dziennika'),
     url(r'^magazyn/$', views.magazyn_index, name='magazyn_index'),
     url(r'^magazyn/dziennik/$', views.podaj_dzienniki, name='podaj_dzienniki'),
+    url(r'^magazyn/dodaj_dostawce/$', views.dodaj_dostawce, name='dodaj_dostawce'),
     url(r'^magazyn/generator/$', views.generator_etykiet, name='generator'),
     url(r'^magazyn/raporty/$', views.raporty, name='raport'),
     url(r'^magazyn/sap_generator/(?P<nr_dziennika>[0-9]+)$', views.sap_generator, name='sap_generator'),
