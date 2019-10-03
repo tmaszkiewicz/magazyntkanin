@@ -1162,11 +1162,14 @@ def fuzzy_check(komentarz, rolka):
 
 # === Generowanie etykiet ===
 def generator_etykiet(request, **kwargs):
+    
+    print(datetime.today)
     wszystkie = Tkanina.objects.all().order_by('nazwa')
     context = {'wszystkie': wszystkie}
     return render(request, 'magazyntkanin/generator_tkanin.html', context)
 
 def drukuj_etykiety(request):
+    print(datetime.today)
     if request.method == 'GET':
         data_przyjecia = request.GET['data-przyjecia']
         if data_przyjecia == '':
@@ -1177,7 +1180,7 @@ def drukuj_etykiety(request):
             zamowienie = request.GET.get('zamowienie') if request.GET.get('zamowienie') else None
             dostawca = request.GET.get('dostawca') if request.GET.get('dostawca') else None
             #22.05.2019  TM Dodac info na temat dostawcy, wiersz ponizej            
-            if dostawca==None or dostawca=="":
+            if dostawca==None or dostawca.strip()=="":
                 return HttpResponse('Wprowadz dostawce')
             if data_przyjecia == "":
                 return HttpResponse('Wprowadz date')
@@ -1194,11 +1197,14 @@ def drukuj_etykiety(request):
             for linia in linie:
                 linia = linia.split(',')
                 if len(linia) == 2:
+                    print(linia)
                     nr_sap = linia[0]
                     ilosc = linia[1]
                     barcodes = []
                     tkanina = Tkanina.objects.get(index_sap=nr_sap)
                     nazwa = tkanina.nazwa
+                    teraz = datetime.now()
+                    print("Przyjecie z data {0} dla dostawcy {1} - zamowienie {2} - tkanina {3}".format(str(teraz), dostawca, zamowienie, nr_sap))
                     for e in range(int(ilosc)):
                         #22.05.2019 TMzamienic ponizsze przypisaniem rozserzonym o dostawce, czyli dodac dostawca=dostawca w create.
                         # Odzwierciedlenie musi byc w templatkach w generator_tkanin.html
@@ -1236,6 +1242,7 @@ def drukuj_etykiety(request):
         return HttpResponse('Niepoprawne dane')
 
 def drukuj_etykiety_test(request):
+    print("ssss")
     if request.method == 'GET':
         #data_przyjecia = request.GET['data-przyjecia']
         data_przyjecia = '2018-11-21'
@@ -2455,3 +2462,23 @@ def fgk_lnwrite(request):
     except:
         return HttpResponse(None)
 
+@csrf_exempt
+def dodaj_dostawce(request):
+    url='magazyntkanin/dodaj_dostawce.html'
+    context = {
+
+    }
+    print(request.POST)
+    if request.method == 'POST':
+        data = request.POST['data-przyjecia']
+        zamowienie = request.POST['zamowienie']
+        dostawca = request.POST['dostawca']
+        try:
+            rolki_z_zamowienia = Rolka.objects.filter(data_dostawy=data,nr_zamowienia=zamowienie)
+            for rol in rolki_z_zamowienia:
+                rol.dostawca = dostawca
+                rol.save()
+            context['lista']=rolki_z_zamowienia
+        except:
+            None
+    return render(request,url,context)
