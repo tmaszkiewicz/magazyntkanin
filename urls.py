@@ -111,6 +111,7 @@ urlpatterns = [
     url(r'^scanner/log/$', views.log_info, name='log_info'),
     url(r'^scanner/log_full/$', views.log_info_full, name='log_info_full'),
     url(r'^magazyn/tkaniny/(?P<nr_tkaniny>[0-9]+)/$', views.tkaniny_edit, name='tkaniny_edit'),
+    url(r'^magazyn/usun_tk_dost/(?P<nr_zamowienia>[0-9]+)/(?P<nr_tkaniny>[0-9]+)/$', views.usun_tk_dost, name='usun_tk_dost'),
     url(r'^magazyn/tkaniny/new/$', views.tkaniny_new, name='tkaniny_new'),
     url(r'^magazyn/drukuj_etykiety_test/$', views.drukuj_etykiety_test, name='drukuj_etykiety_test'),
     url(r'^scanner/magazyn_wymianki/$', views.magazyn_wymianki, name='magazyn_wymianki'),

@@ -562,7 +562,7 @@ def inw_do_usuniecia(request):
     #2 ) http://jan-svr-docker:8000/magazyn/inwentura_usun_finalnie/ (views.inw_usuwamy) 
     #3 ) http://jan-svr-docker:8000/magazyn/archiwizuj_inwenture/ (views.archiwizuj_inwenture)
     rolki= []
-    dd= datetime.strptime("2019-07-25 00:00:01.78200", "%Y-%m-%d %H:%M:%S.%f").date()
+    dd= datetime.strptime("2019-12-20 00:00:01.78200", "%Y-%m-%d %H:%M:%S.%f").date()
     for i in Rolka.objects.all():   # DLA PELNEJ INWENTURY
     ##for i in Rolka.objects.filter(tkanina__index_sap=12641):  # DLA INWENTURY TKANINY
         
@@ -592,7 +592,7 @@ def inw_usuwamy(request):
     return HttpResponse("OK")
 def archiwizuj_inwenture(request):
     for i in Log.objects.filter(typ='INWENTURA'):
-        i.typ='INWENTURA_26072019'
+        i.typ='INWENTURA_10092019'
         i.save()
     #for i in Log.objects.filter(typ='INWENTURA_22122019'):
     #    i.typ='INWENTURA_22122018'
@@ -1077,6 +1077,42 @@ def l_check(request,nr_rolki):
                 return render(request, 'registration/login.html', {'form': form, 'error': 'Logowanie nie poprawne'})
     return render(request, 'registration/login.html', {'form': form, 'error': 'Logowanie nie poprawne'})      
 
+##Logowanie - magazyn tkanin 04.10.2019G
+def user_login_m(request,nr_zamowienia,nr_tkaniny):
+    user_logout(request)
+    context={
+    }
+    if request.user.is_authenticated():
+        return HttpResponseRedirect('/magazyn/')
+
+    form = LoginForm()
+    context['form']= form
+    context['nr_zamowienia'] = nr_zamowienia
+    context['nr_tkaniny'] = nr_tkaniny
+
+    return render(request, 'registration/login_m.html', context)
+
+def l_check_m(request,nr_zamowienia,nr_tkaniny):
+    if request.method == 'POST':
+        form = LoginForm(request.POST)
+        if form.is_valid():
+            data = form.cleaned_data
+            user = data['user']
+            password = data['password']
+            user_check = authenticate(username=user, password=password)
+            if user_check:
+                if user_check.is_active:
+                    login(request, user_check)
+                    #http://192.168.41.7:8000/magazyn/usun_tk_dost/77777/10004/
+                    user=request.user
+                    print(user)
+                    url='http://192.168.41.7:8000/magazyn/usun_tk_dost_/'+nr_zamowienia+'/'+nr_tkaniny+'/'+str(user)+'/'
+                    print(url)
+                    return HttpResponseRedirect(url)
+            else:
+                return render(request, 'registration/login_m.html', {'form': form, 'error': 'Logowanie nie poprawne'})
+    return render(request, 'registration/login_m.html', {'form': form, 'error': 'Logowanie nie poprawne'})      
+#!!!!!
 @login_required
 def user_logout(request):
     logout(request)
@@ -1179,6 +1215,8 @@ def drukuj_etykiety(request):
             data_przyjecia = request.GET.get('data-przyjecia')
             zamowienie = request.GET.get('zamowienie') if request.GET.get('zamowienie') else None
             dostawca = request.GET.get('dostawca') if request.GET.get('dostawca') else None
+
+            #print("Przeprowadzono wydruk masowy dla zamownienia {0} dostawcy {1} z data {3}".format(dostawca,zamowienie,data_przyjecia))
             #22.05.2019  TM Dodac info na temat dostawcy, wiersz ponizej            
             if dostawca==None or dostawca.strip()=="":
                 return HttpResponse('Wprowadz dostawce')
@@ -1204,6 +1242,8 @@ def drukuj_etykiety(request):
                     tkanina = Tkanina.objects.get(index_sap=nr_sap)
                     nazwa = tkanina.nazwa
                     teraz = datetime.now()
+                    if dostawca == "" or dostawca==None:
+                        dostawca="Bledny dostawca"
                     print("Przyjecie z data {0} dla dostawcy {1} - zamowienie {2} - tkanina {3}".format(str(teraz), dostawca, zamowienie, nr_sap))
                     for e in range(int(ilosc)):
                         #22.05.2019 TMzamienic ponizsze przypisaniem rozserzonym o dostawce, czyli dodac dostawca=dostawca w create.
@@ -1218,7 +1258,18 @@ def drukuj_etykiety(request):
                     call(['/etc/init.d/cups start'], shell=True)
                     #call(['lp tmp/etykieta_podwojna.pdf'], shell=True)
                     call(['lp -o Resolution=300dpi -o PageSize=w144h216 tmp/etykieta_podwojna.pdf'], shell=True)
+                    #dodatkowo przejeżdzamy dostawcą
+                    try:
+                        rolki_z_zamowienia = Rolka.objects.filter(data_dostawy=data_przyjecia,nr_zamowienia=zamowienie)
+                        for rol in rolki_z_zamowienia:
+                            rol.dostawca = dostawca
+                            rol.save()
+                    except Excepion as e:
+                        print ("Nie wprowadzono dostawcy {0} dla rolki {1} blad {2}".format(dostawca,rol.pk,e))
+
+    
                 else:
+                    print("Przyjecie - nieprawidlowe dane  data {0} dla dostawcy {1} - zamowienie {2} - tkanina {3} - linia {4}".format(str(teraz), dostawca, zamowienie, nr_sap, linia))
                     return HttpResponse("Nieprawidłowe dane")
             return HttpResponse("Wydrukowano")
         tkanina = Tkanina.objects.get(index_sap=request.GET['nr_sap'])
@@ -2481,4 +2532,69 @@ def dodaj_dostawce(request):
             context['lista']=rolki_z_zamowienia
         except:
             None
+    return render(request,url,context)
+def usun_tk_dost(request, *args, **kwargs):
+    nr_zamowienia = kwargs['nr_zamowienia']
+    nr_tkaniny = kwargs['nr_tkaniny']
+    print("{0}{1}".format(nr_zamowienia,nr_tkaniny))
+    url='magazyntkanin/usun_tk_z_zam.html'
+    context = {
+    }
+    rolki_do_usuniecia = Rolka.objects.filter(nr_zamowienia=nr_zamowienia,tkanina__index_sap=nr_tkaniny)
+    context['rolki_do_usuniecia'] = rolki_do_usuniecia
+    context['zamowienie'] = nr_zamowienia
+    user_logout(request)
+
+    return render(request,url,context)
+@login_required
+def usun_tk_dost_(request, *args, **kwargs):
+    
+    nr_zamowienia = kwargs['nr_zamowienia']
+    nr_tkaniny = kwargs['nr_tkaniny']
+    user = kwargs['user']
+    user_logout(request)
+    
+    user_login_m(request,nr_zamowienia,nr_tkaniny)
+    url='magazyntkanin/usun_tk_z_zam_.html'
+    context = {
+    }
+    rolki_do_usuniecia = Rolka.objects.filter(nr_zamowienia=nr_zamowienia,tkanina__index_sap=nr_tkaniny)#.delete()
+    Rolka.objects.filter(nr_zamowienia=nr_zamowienia,tkanina__index_sap=nr_tkaniny).delete()
+    context['rolki_do_usuniecia'] = rolki_do_usuniecia
+    context['zamowienie'] = nr_zamowienia
+    context['user'] = user
+            
+    print("Uzutkownik {0} usunął tkanine {1} z zamowienia {2}".format(user,nr_tkaniny,nr_zamowienia))
+    
+
+    return render(request,url,context)
+def fgk(request, *args, **kwargs):
+    context = {
+    }
+    url='magazyntkanin/fgk.html'
+    if request.GET:
+        job_name=request.GET['job_name']
+        job_cr_date=request.GET['job_cr_date']
+        job_cutt=request.GET['job_cutt']
+        karty = FgkComment.objects.all()
+
+        if job_name != "":
+            karty = FgkComment.objects.filter(job_name=job_name)
+        elif job_cutt != "":
+            karty = FgkComment.objects.filter(job_cutt=job_cutt)
+            
+
+        context['karty'] = karty
+        print(karty)
+    
+
+    
+    return render(request,url,context)
+def fgk_line(request, *args, **kwargs):
+    url='magazyntkanin/fgk_lines.html'
+    context = {
+    }
+    job_name=kwargs['job_name']
+    linie=FgkLine.objects.filter(job_name=job_name)
+    context['linie']=linie
     return render(request,url,context)

@@ -1,0 +1,52 @@
+{% extends "magazyntkanin/base.html" %}
+{% load bootstrap3 %}
+
+{% block css %}
+        <style type="text/css">
+                th {
+                        text-align: center;
+                        font-size: 18px;
+                }
+        </style>
+{% endblock css %}
+
+
+{% block body %}
+
+<div class="container">
+        
+        <div class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
+        </div>
+        
+        <div class="col-xs-4 col-sm-4 col-md-4 col-lg-4">               
+                <center>
+                <h3>DODANIE/EDYCJA TKANINY</h3>
+                
+                <a href="http://jan-svr-docker:8000/magazyn/tkaniny/new/"><button type="button" class="btn btn-danger">DODAJ TKANINE</button></a>
+                </center>
+                <table class="table table-hover">
+                        <thead>
+                                <tr>
+                                        <th>Tkanina</th>
+                                        <th>Indeks</th>
+                                </tr>
+                        </thead>
+                        <tbody>
+                                {% for a in tkanina %}
+                                <tr>
+                                        <td>
+                                        
+                                        <a href="{{a.pk}}">{{ a.nazwa }}</a>
+                                        </td>
+                                        <td> {{ a.index_sap }}</td>
+                                </tr>
+                                {% endfor %}
+                        </tbody>
+        </div>        
+        <div class="col-xs-4 col-sm-4 col-md-4 col-lg-4">               
+        </div>
+        
+</div>
+
+{% endblock body %}
+

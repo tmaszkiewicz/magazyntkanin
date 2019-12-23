@@ -451,6 +451,11 @@ class FgkLine(models.Model):
         part  = models.CharField(max_length=255, blank=True)
         count = models.CharField(max_length=255, blank=True)
         
+        class Meta:
+            verbose_name_plural = 'FgkLines'
+
+        def __str__(self):
+            return "{0} / {1} / {2}".format(self.job_name, self.part, self.count)
 
 # -------------- FORMS --------------
 class RolkaForm(forms.ModelForm):
@@ -499,6 +504,14 @@ class XlsBrowserForm(forms.ModelForm):
                   'data_dostawy',
                   )
 
+
+class FgkLineForm(forms.ModelForm):
+    class Meta:
+        model = FgkLine
+        fields = ('job_name',
+                  'part',
+                  'count',
+                  )
 class ErrorLog(models.Model):
     error = models.CharField(max_length=250)
     post = models.CharField(max_length=500)

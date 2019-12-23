@@ -106,8 +106,8 @@ def createBarCodes(barcode_value, temp_path):
     """
     Create barcode examples and embed in a PDF
     """
+	
     c = canvas.Canvas(temp_path + ".bar", pagesize=landscape(A4))
-    print(temp_path)
     # draw a QR code
     qr_code = qr.QrCodeWidget(str(barcode_value))
     bounds = qr_code.getBounds()
@@ -116,9 +116,15 @@ def createBarCodes(barcode_value, temp_path):
     height = bounds[3] - bounds[1]
     d = Drawing(75, 75, transform=[75. / width, 0, 0, 75. / height, 0, 0])
     d.add(qr_code)
-    # renderPDF.draw(d, c, 26 * cm, 18.5 * cm)
-    renderPDF.draw(d, c, 0.2 * cm, 26 * cm)
+    #
+    #renderPDF.draw(d, c, 26 * cm, 18.5 * cm)
+    renderPDF.draw(d, c, 0.2 * cm, 26 * cm)#dla tradycyjnej metody
+    renderPDF.draw(d, c, 26 * cm, 18 * cm) # Dla powershella
+
+
     c.save()
+ 
+    print("Planowanie poszlo generowanie  kanwy")
     return True
 
 def tkaniny_A4_barcode(tkanina, sap_index, file_name="tmp/tabela.pdf", wszystkie_=False):
@@ -1094,9 +1100,11 @@ def pdf_merger(pdf_list):
 def Tworzenie_kodu_na_dzienniku(nr_zlecenia, dziennik_path, barcode_path='temp_barcode.pdf'):
     output = PdfFileWriter()
     if createBarCodes(nr_zlecenia, dziennik_path):
+	
         a_pdf = PdfFileReader(open(dziennik_path, 'rb'))
         b_pdf = PdfFileReader(open(dziennik_path + ".bar", 'rb'))
         barcode = b_pdf.getPage(0)
+        #for i in range(a_pdf.getNumPages()-1):
         for i in range(a_pdf.getNumPages()):
             page = a_pdf.getPage(i)
             page.mergePage(barcode)
@@ -1612,7 +1620,7 @@ def Zarzadzenie_dziennikami(ocr_txt_path=os.path.join('.', 'dzienniki/')):
                             os.path.join('.', 'dzienniki', 'magazyn', str(nr_zlecenia) + '.pdf')
                             )
                 except Exception as e:
-                    print(f'{file_pdf_name} - {e}')
+                    print(f'Planowanie tworzenie kodu na M {file_pdf_name} - {e}')
             elif dzial == "K":
                 try:
                     nr_zlecenia, data_zlecenia, dane = dziennik_krojowania_re_test(txt_z_pliku)
@@ -1627,7 +1635,7 @@ def Zarzadzenie_dziennikami(ocr_txt_path=os.path.join('.', 'dzienniki/')):
                             os.path.join('.', 'dzienniki', 'krojownia', str(nr_zlecenia) + '.pdf')
                             )                        
                 except Exception as e:
-                    print(f'{file_pdf_name} - {e}')         
+                    print(f'Planowanie tworzenie kodu na K {file_pdf_name} - {e}')         
             else:
                 # os.remove(scan.path)
                 shutil.move(file_pdf_name,
@@ -1648,9 +1656,9 @@ def Zapisywanie_danych(dane, dzial, nr_zlecenia, data=False):
                 if created:
                     licznik += 1
             except Exception as e:
-                print("Niepoprawne dane")
+                print("Planowanie Niepoprawne dane")
                 print(e)
-                print(f"Dzial: {dzial}, Nr zlecenia: {nr_zlecenia}")
+                print(f"Planowanie Dzial: {dzial}, Nr zlecenia: {nr_zlecenia}")
                 print(each)
                 return e
     if dzial == 'K':
@@ -1677,9 +1685,9 @@ def Zapisywanie_danych(dane, dzial, nr_zlecenia, data=False):
                 if created:
                     licznik += 1
             except Exception as e:
-                print("Niepoprawne dane")
+                print("Planowanie Niepoprawne dane")
                 print(e)
-                print(f"Dzial: {dzial}, Nr zlecenia: {nr_zlecenia}")
+                print(f"Planowanie Dzial: {dzial}, Nr zlecenia: {nr_zlecenia}")
                 print(each)
                 ErrorLog.objects.create(error=e, funkcja=Zapisywanie_danych(), post=each)
                 return e
