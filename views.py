@@ -343,7 +343,7 @@ def magazyn_inwentura_grupowana(request):
             #    typ_inwentury="INWENTURA_06022019"
             #    inw = Log.objects.filter(index_tkaniny__startswith=index_tkaniny,typ=typ_inwentury).order_by('rolka_id','-timestamp').distinct('rolka_id')
             elif int(status)==4:
-                typ_inwentury="INWENTURA_26072019"
+                typ_inwentury="INWENTURA_20122019"
                 inw = Log.objects.filter(index_tkaniny__startswith=index_tkaniny,typ=typ_inwentury).order_by('rolka_id','-timestamp').distinct('rolka_id')
     
         else:
@@ -379,7 +379,7 @@ def magazyn_inwentura_grupowana(request):
             #    typ_inwentury="INWENTURA_06022019"
             #    inw = Log.objects.filter(typ=typ_inwentury).order_by('rolka_id','-timestamp').distinct('rolka_id')
             elif int(status)==4:
-                typ_inwentury="INWENTURA_26072019"
+                typ_inwentury="INWENTURA_20122019"
                 inw = Log.objects.filter(typ=typ_inwentury).order_by('rolka_id','-timestamp').distinct('rolka_id')
 
         ind_old=0
@@ -564,6 +564,8 @@ def inw_do_usuniecia(request):
     rolki= []
     dd= datetime.strptime("2019-12-20 00:00:01.78200", "%Y-%m-%d %H:%M:%S.%f").date()
     for i in Rolka.objects.all():   # DLA PELNEJ INWENTURY
+    #for i in Rolka.objects.filter(status=1):   # zmiana 20.01.2020 -> DLA INWENTURY MAGAZYNAMI - 0 MAG. 1 WYDANE, 2 - ZAKONCZONE, potem już usun finalnie!
+
     ##for i in Rolka.objects.filter(tkanina__index_sap=12641):  # DLA INWENTURY TKANINY
         
     
@@ -592,7 +594,7 @@ def inw_usuwamy(request):
     return HttpResponse("OK")
 def archiwizuj_inwenture(request):
     for i in Log.objects.filter(typ='INWENTURA'):
-        i.typ='INWENTURA_10092019'
+        i.typ='INWENTURA_20122019'
         i.save()
     #for i in Log.objects.filter(typ='INWENTURA_22122019'):
     #    i.typ='INWENTURA_22122018'
@@ -765,6 +767,7 @@ def test_statystki(rolka):
         Q(typ="INWENTURA_22122019") |
         Q(typ="INWENTURA_06022019") |
         Q(typ="INWENTURA_26072019") |
+        Q(typ="INWENTURA_20122019") |
         Q(typ="WPIS_MAGAZYN_ZWROT")).order_by('-timestamp')
 
     log_fgk = log.filter(
@@ -2456,12 +2459,14 @@ def czysc_zliczanie(request):
 @csrf_exempt
 def fgk_read(request):
     job_name = request.POST['job_name']
+
     try:
-        fg =  FgkComment.objects.get(job_name=job_name)
+        fg = FgkComment.objects.get(job_name=job_name)
+        print(fg)
+        return HttpResponse(fg.job_comm)
     except Exception as e:
         ErrorLog.objects.create(error=e, post=request.POST, funkcja=request.get_full_path())
         return HttpResponse("False")
-    return HttpResponse(fg.job_comm)
 @csrf_exempt
 def fgk_write(request):
     job_name = request.POST['job_name']
@@ -2506,8 +2511,9 @@ def fgk_lnwrite(request):
     job_name = request.POST['job_name']
     part = request.POST['part']
     count1 = request.POST['ilosc']
+    box = request.POST['box']
     try:
-        fgln =  FgkLine.objects.get_or_create(job_name=job_name,part=part,count=count1)
+        fgln =  FgkLine.objects.get_or_create(job_name=job_name,part=part,count=count1,box=box)
         return HttpResponse(fgln.part)
 
     except:
@@ -2576,12 +2582,16 @@ def fgk(request, *args, **kwargs):
         job_name=request.GET['job_name']
         job_cr_date=request.GET['job_cr_date']
         job_cutt=request.GET['job_cutt']
-        karty = FgkComment.objects.all()
+        karty = FgkComment.objects.all().order_by('-pk')
 
         if job_name != "":
-            karty = FgkComment.objects.filter(job_name=job_name)
+            karty = FgkComment.objects.filter(job_name=job_name).order_by('job_cr_date')
         elif job_cutt != "":
-            karty = FgkComment.objects.filter(job_cutt=job_cutt)
+            karty = FgkComment.objects.filter(job_cutt=job_cutt).order_by('job_cr_date')
+	#elif job_cr_date!="": 
+        #    karty=FgkComment.objects.filter(job_cr_date=job_cr_date)
+
+
             
 
         context['karty'] = karty
