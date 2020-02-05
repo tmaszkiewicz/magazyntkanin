@@ -124,6 +124,14 @@ def raport_inw(request):
         return response
     pdf.closed
     return True
+def wz_xls(request):
+    filename = 'tmp/wz.xlsx'
+    response = HttpResponse(open(filename, 'rb').read())
+    response['Content-Type'] = 'mimetype/submimetype'
+    response['Content-Disposition'] = 'attachment; filename=wz.xlsx'
+    #response = HttpResponse(output,content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+    #response['Content-Disposition'] = 'attachment; filename=%s' % filename
+    return response
 def szablon_a4(request):
     if request.POST:
         _nr_sap = request.POST.get('nr_sap')
@@ -275,7 +283,8 @@ def magazyn_sprzedaz_rep(request):
             sp3.append(sp2)
         context['sprzedaz'] = sp3
         context['data'] = data
-
+        sp4=sorted(sp3, key=lambda i: i['index_tkaniny'])
+        functions.generuj_wz_xls(sp4)
     #if request.GET:
     #    None
     return render(request,url,context)
@@ -490,6 +499,202 @@ def magazyn_inwentura_grupowana(request):
 
         #if index_tkaniny:
             #inw3 = [x for x in inw3 if x['index_tkaniny'] ==  int(index_tkaniny) ]
+        
+        functions.generuj_raport_inwentury2(inw3)
+        functions.generuj_raport_inwentury3(inw3)
+        functions.generuj_raport_xls(inw3)
+        functions.generuj_xls_porownanie_sap(inw3)
+
+        context['inw'] = inw3
+        context['status'] = status
+        return render(request, url, context)
+    return render(request, url, context)
+
+def magazyn_inwentura_grupowana_v2(request):
+    from operator import itemgetter
+    url = "magazyntkanin/inwentura_rep_v2.html"
+    context = {
+    }
+
+    if request.GET:
+        nazwa_tkaniny = request.GET.get('nazwa_tkaniny')
+        index_tkaniny = request.GET.get('index_tkaniny')
+        status = request.GET.get('status')
+        lokalizacja = request.GET.get('lokalizacja')
+        if lokalizacja=="0":
+        	filtr_lokalizacja=r'^0$' #Magazyn
+        elif lokalizacja=="1":
+        	filtr_lokalizacja=r'^1$' #Wydana
+        elif lokalizacja=="2":
+        	filtr_lokalizacja=r'^(0|1)$' # Zakonczona Docelowo wszystkie
+        elif lokalizacja=="":
+        	filtr_lokalizacja=r'^(0|1)$' # Domyslnie niezamkniete
+        print(filtr_lokalizacja)
+
+        if nazwa_tkaniny:
+            try:
+                index_tkaniny = Tkanina.objects.filter(nazwa__startswith=nazwa_tkaniny)[0].index_sap ###Czy tu filtr po lokalizacji?????
+            except:
+                None
+           
+
+        if index_tkaniny:
+            if ( status!='' and int(status)<2) or status=='':
+                inw = Log.objects.filter(index_tkaniny__startswith=index_tkaniny).order_by('rolka_id','-timestamp').distinct('rolka_id')
+                typ_inwentury="INWENTURA"
+            elif int(status)==2:
+
+                inw_ = Log.objects.filter(index_tkaniny__startswith=index_tkaniny).order_by('rolka_id','-timestamp').distinct('rolka_id')
+
+                inw = list(filter(lambda x: do_wywalenia(x.rolka_id),inw_))
+
+                typ_inwentury="INWENTURA"
+            elif int(status)==3:
+                typ_inwentury="ZLICZANIE"
+                inw3 = []
+                for  inw_ in Rolka_zliczana.objects.filter(tkanina__index_sap__startswith=index_tkaniny,status__regex=filtr_lokalizacja): # 22.01.2020
+                    inw2={}
+                    inw2['rolka_id'] = inw_.pk
+                    inw2['index_tkaniny'] = inw_.tkanina.index_sap
+                    inw2['lokalizacja'] = inw_.status ##22.01.2020
+                    inw2['dlugosc_elementu'] = inw_.dlugosc
+                    inw2['typ']=typ_inwentury
+                    inw2['nazwa_tkaniny']=inw_.tkanina.nazwa
+                    inw2['dlugosc_rolki']=inw_.dlugosc
+                    inw3.append(inw2)
+
+            elif int(status)==4:
+                typ_inwentury="INWENTURA_20122019"
+                inw = Log.objects.filter(index_tkaniny__startswith=index_tkaniny,typ=typ_inwentury).order_by('rolka_id','-timestamp').distinct('rolka_id')
+    
+        else:
+            if (status!='' and  int(status)<2) or status=='':
+                typ_inwentury="INWENTURA"
+                inw = Log.objects.order_by('rolka_id','-timestamp').distinct('rolka_id')
+            elif int(status)==2:
+
+                inw_ = Log.objects.filter(index_tkaniny__startswith=index_tkaniny).order_by('rolka_id','-timestamp').distinct('rolka_id')
+
+                inw = list(filter(lambda x: do_wywalenia(x.rolka_id),inw_))
+                typ_inwentury="INWENTURA"
+            elif int(status)==3:
+                typ_inwentury="ZLICZANIE"
+                inw3 = []
+                for  inw_ in Rolka_zliczana.objects.filter(tkanina__index_sap__startswith=index_tkaniny,status__regex=filtr_lokalizacja): #22.01.2020
+                    inw2={}
+                    inw2['rolka_id'] = inw_.pk
+                    inw2['index_tkaniny'] = inw_.tkanina.index_sap
+                    inw2['lokalizacja'] = inw_.status ##22.01.2020
+                    inw2['dlugosc_elementu'] = inw_.dlugosc # dlugosc rolki, i elementu jako dlugosc przed i po w tym wypadku takie same
+                    inw2['typ']=typ_inwentury
+                    inw2['nazwa_tkaniny']=inw_.tkanina.nazwa
+                    inw2['dlugosc_rolki']=inw_.dlugosc  # w tym przypadku interesuje nas długość "po", nie ewidencjonujemy zmian, wiec i w dlugosc_elementu i w dlugosc_rolki  tu i tu mamy dlugosc rolko
+                    inw3.append(inw2)
+
+            elif int(status)==4:
+                typ_inwentury="INWENTURA_20122019"
+                inw = Log.objects.filter(typ=typ_inwentury).order_by('rolka_id','-timestamp').distinct('rolka_id')
+
+        ind_old=0
+        if (status=='' or int(status)!=3):
+            inw3=[]
+            for i in inw:
+                if Rolka.objects.filter(pk=i.rolka_id,status__regex=filtr_lokalizacja).exists():  #22.01.2020
+                #if Rolka.objects.filter(pk=i.rolka_id,status__regex=lokalizacja).exists():  #22.01.2020
+                    
+                    inw2={}
+                    inw2['nazwa_tkaniny']=Tkanina.objects.filter(index_sap=i.index_tkaniny)[0].nazwa
+                    inw2['lokalizacja'] = Rolka.objects.filter(pk=i.rolka_id)[0].status ##22.01.2020
+                    inw2['rolka_id']=i.rolka_id
+                    inw2['index_tkaniny']=i.index_tkaniny
+                    try:
+                        inw2['dlugosc_rolki']=round(i.dlugosc_rolki,2)
+                        inw2['dlugosc_elementu']=round(i.dlugosc_elementu,2)
+                    except:
+                        inw2['dlugosc_rolki']=i.dlugosc_rolki
+                        inw2['dlugosc_elementu']=i.dlugosc_elementu
+
+                    inw2['typ']=i.typ
+                    inw2['timestamp']=i.timestamp
+                    inw2['isPrinted']=True
+                    inw2['suma_po_rolkach']=Rolka.objects.filter(tkanina__index_sap=i.index_tkaniny).aggregate(Sum('dlugosc'))
+                    #print(Rolka.objects.filter(tkanina__index_sap=12641),"23333")
+                    inw3.append(inw2)
+        # GDZIES TU SIE NIE TWORZY inw3, generalnnie nie wpada w sytuacji brak statusu i i nie ma wtedy inw3, jak dodać, oto zadanie na poniedzialek!!!!!!!
+        inw3 = sorted(inw3, key=itemgetter('index_tkaniny'))
+        
+        dlPerIndeks = 0
+        dlPerIndeks_inw = 0
+        #ZLICZAMY DLUGOSC INDEKSU 
+        ile_rolek=0
+        for i in inw3:
+            if ind_old != i['index_tkaniny']:
+            
+                
+                dlPerIndeks_inw = 0
+                i['isPrinted']=True
+                
+                if i['dlugosc_elementu']!=None:
+                    dlPerIndeks = i['dlugosc_elementu']
+                    if i['typ']==typ_inwentury:
+                        dlPerIndeks_inw = i['dlugosc_elementu']
+                    
+                else:
+                    dlPerIndeks=0
+                    dlPerIndeks_inw = 0
+                i['dlPerIndeks']=dlPerIndeks
+                
+                i['dlPerIndeks_inw']=dlPerIndeks_inw
+
+            else:
+
+                i['isPrinted']=False
+                #print(i['dlugosc_elementu'],dlPerIndeks)
+                if i['dlugosc_elementu']!=None:
+                    dlPerIndeks += i['dlugosc_elementu']
+                    if i['typ']==typ_inwentury:
+                        dlPerIndeks_inw += i['dlugosc_elementu']
+                
+                i['dlPerIndeks']=round(dlPerIndeks,2)
+                i['dlPerIndeks_inw']=round(dlPerIndeks_inw,2)
+                
+            ind_old=i['index_tkaniny']
+            #przeniesc do czesci ze zmiana ind_old
+            ilosc_= Tkanina.objects.get(index_sap=ind_old).ilosc_na_magazynie()
+            ile_rolek=0
+            ile_rolek_inw=0
+            for j in filter(lambda x: x['index_tkaniny'] == ind_old, inw3):
+                ile_rolek+=1
+                if j['typ']=="INWENTURA":
+                    ile_rolek_inw+=1
+
+                try:
+                    j['dlPerIndeks']=round(ilosc_,1)
+                except:
+                    print(f"Ilosc przy bledzie {ilosc_}")
+                
+
+                j['dlPerIndeks_inw']=round(dlPerIndeks_inw,2)
+                i['ile_rolek']=ile_rolek # i->j 26.07.2019 - bload zliczania
+                i['ile_rolek_inw']=ile_rolek_inw # i->j 26.07.2019 - bload zliczania
+            
+
+        if status:
+            ind_o = 0
+            if int(status)<1:
+                inw3 = [x for x in inw3 if x['typ'] != typ_inwentury ]
+            else:
+                inw3 = [x for x in inw3 if x['typ'] == typ_inwentury ]
+
+            for k in inw3:
+                if ind_o != k['index_tkaniny']:
+                    k['isPrinted']=True
+                else:
+                     k['isPrinted']=False
+                     #k['ile_rolek']+=1
+                ind_o=k['index_tkaniny']
+
+
         
         functions.generuj_raport_inwentury2(inw3)
         functions.generuj_raport_inwentury3(inw3)

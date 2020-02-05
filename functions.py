@@ -318,6 +318,163 @@ def generuj_raport_xls(inw):
 
 
     return HttpResponse("OK")
+def generuj_wz_xls(sp):
+    import datetime
+    from openpyxl import Workbook
+    from openpyxl.styles import colors, Font, Color, Side, Border, PatternFill, GradientFill, Alignment
+    wb = Workbook()
+    ws = wb.active
+    ws.title = "WZ"
+    ws.column_dimensions['C'].width = 10
+    ws.column_dimensions['D'].width = 18
+    ws.column_dimensions['E'].width = 11
+    ws.column_dimensions['F'].width = 6
+    row=8
+    thin = Side(border_style="thin", color="000000")
+    double = Side(border_style="double", color="000000")
+    ws['C7'] = "INDEKS"
+    ws['D7'] = "NAZWA TKANINY"
+    ws['E7'] = "ILOŚĆ (m.b.)"
+    ws['F7'] = "BELKI"
+    ws['C7'].border = Border(top=double, left=double, bottom=double)
+    ws['D7'].border = Border(top=double, left=thin, right=thin, bottom=double)
+    ws['E7'].border = Border(top=double, left=thin, right=thin, bottom=double)
+    ws['F7'].border = Border(top=double, right=double, bottom=double)
+    ws['C7'].font = Font(bold=True)
+    ws['D7'].font = Font(bold=True)
+    ws['E7'].font = Font(bold=True)
+    ws['F7'].font = Font(bold=True)
+    sp_tmp=[]
+    for i in sp:
+        sp2={}
+        sp2['nazwa_tkaniny']=i['nazwa_tkaniny']
+        sp2['rolka_id']=i['rolka_id']
+        sp2['index_tkaniny']=i['index_tkaniny']
+        sp2['dlugosc_rolki']=i['dlugosc_rolki']
+        sp2['dlugosc_elementu']=i['dlugosc_elementu']
+        sp2['typ']=i['typ']
+        sp2['timestamp']=i['timestamp']
+        sp2['isPrinted']=i['isPrinted']
+        sp2['ilosc']=1
+        sp_tmp.append(sp2)
+
+    sp1=[]
+    id_old=dlugosc=ilosc=indeks=il=0
+    for i in sp_tmp:
+        #dlugosc=dl
+        if (i['index_tkaniny']!=id_old):
+             il=i['ilosc']
+             dl=float(i['dlugosc_elementu'])
+             i['dlugosc_elementu']=dlugosc
+             i['ilosc']=ilosc
+             sp1.append(i)
+             if indeks>=1:
+                  sp1[indeks-1]['dlugosc_elementu']=dlugosc
+                  sp1[indeks-1]['ilosc']=ilosc
+             id_old=i['index_tkaniny']
+             indeks+=1
+             ilosc=il
+             dlugosc=dl
+        else:
+             ilosc+=1
+             dlugosc+=float(i['dlugosc_elementu'])
+             i['dlugosc_elementu']=dlugosc
+             i['ilosc']=ilosc
+    if indeks>=1:
+        sp1[indeks-1]['dlugosc_elementu']=dlugosc
+        sp1[indeks-1]['ilosc']=ilosc
+    suma=0
+    belki=0
+    for i in sp1:
+        cell = "C" + str(row)
+        try:
+            ws[cell] = i['index_tkaniny']
+            ws[cell].border=Border(top=thin, left=thin, right=thin, bottom=thin)
+        except:
+            None
+        cell = "D" + str(row)
+        try:
+            ws[cell] = i['nazwa_tkaniny']
+            ws[cell].border=Border(top=thin, left=thin, right=thin, bottom=thin)
+        except:
+            None
+        cell = "E" + str(row)
+        try:
+           # ws[cell] = "{:12.2f}".format(i['dlugosc_elementu'])
+            ws[cell] = round(i['dlugosc_elementu'],2)
+            suma+=i['dlugosc_elementu']
+            ws[cell].number_format = '#,##0.00'
+            ws[cell].border=Border(top=thin, left=thin, right=thin, bottom=thin)
+        except:
+            None
+        cell = "F" + str(row)
+        try:
+            ws[cell] = i['ilosc']
+            belki+=i['ilosc']
+            ws[cell].border=Border(top=thin, left=thin, right=thin, bottom=thin)
+        except:
+            None
+        row+=1
+    cell="E" + str(row)
+    ws[cell].number_format = '#,##0.00'
+    ws[cell]=suma
+    ws[cell].fill = PatternFill("solid", fgColor="FFFF00")
+    ws[cell].font = Font(bold=True)
+    cell="F" + str(row)
+    #ws[cell].number_format = '#,##0.00'
+    ws[cell]=belki
+    ws[cell].fill = PatternFill("solid", fgColor="FFFF00")
+    ws[cell].font = Font(bold=True)
+#------Format------
+    #b2 = ws['B2']
+    #bd = Side(style='thick', color="000000")
+    #b2.border = Border(left=bd, top=bd, right=bd, bottom=bd)
+    ws.merge_cells('B2:G2')
+    ws.merge_cells('B5:G5')
+
+    b2 = ws['B2']
+    c2 = ws['C2']
+    d2 = ws['D2']
+    e2 = ws['E2']
+    f2 = ws['F2']
+    g2 = ws['G2']
+    b2.value = "WZ  -  DOKUMENT  z dnia: "+ datetime.datetime.now().strftime("%d-%m-%Y")
+    b5 = ws['B5']
+    c5 = ws['C5']
+    d5 = ws['D5']
+    e5 = ws['E5']
+    f5 = ws['F5']
+    g5 = ws['G5']
+    b5.value = "Wysyłka z JANIPOLU do:"
+
+
+    b2.border = Border(top=thin, left=thin, bottom=thin)
+    c2.border = Border(top=thin, bottom=thin)
+    d2.border = Border(top=thin, bottom=thin)
+    e2.border = Border(top=thin, bottom=thin)
+    f2.border = Border(top=thin, bottom=thin)
+    g2.border = Border(top=thin, bottom=thin, right=thin)
+    b5.border = Border(top=thin, left=thin, bottom=thin)
+    c5.border = Border(top=thin, bottom=thin)
+    d5.border = Border(top=thin, bottom=thin)
+    e5.border = Border(top=thin, bottom=thin)
+    f5.border = Border(top=thin, bottom=thin)
+    g5.border = Border(top=thin, bottom=thin, right=thin)
+    b2.fill = PatternFill("solid", fgColor="FFFF00")
+    b2.font = Font(b=True, color="000000")
+    b2.alignment = Alignment(horizontal="left", vertical="center")
+    b5.fill = PatternFill("solid", fgColor="FFFF00")
+    b5.font = Font(b=True, color="000000")
+    b5.alignment = Alignment(horizontal="left", vertical="center")
+
+
+#------Format------
+
+    #wb.save('tmp/wz-'+datetime.datetime.now().strftime("%Y-%m-%d-%H-%M")+'.xlsx')
+    wb.save('tmp/wz.xlsx')
+
+
+    return HttpResponse("OK")
 def generuj_xls_porownanie_sap(inw):
     import datetime
     from openpyxl import Workbook
