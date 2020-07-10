@@ -1467,7 +1467,9 @@ def drukuj_etykiety(request):
                         nazwa, barcode=barcodes, data_dostawy=data_przyjecia)
                     call(['/etc/init.d/cups start'], shell=True)
                     #call(['lp tmp/etykieta_podwojna.pdf'], shell=True)
-                    call(['lp -o Resolution=300dpi -o PageSize=w144h216 tmp/etykieta_podwojna.pdf'], shell=True)
+                    call(['lp -o Resolution=203dpi -o PageSize=w144h216 tmp/etykieta_podwojna.pdf'], shell=True) #Zebra ZT230 10-07-2020 Podmiana drukarek wzorniki->magazyn
+                    #call(['lp -o Resolution=300dpi -o PageSize=w144h216 tmp/etykieta_podwojna.pdf'], shell=True) #Zebra ZT230 10-07-2020 Podmiana drukarek wzorniki->magazyn
+
                     #dodatkowo przejeżdzamy dostawcą
                     try:
                         rolki_z_zamowienia = Rolka.objects.filter(data_dostawy=data_przyjecia,nr_zamowienia=zamowienie)
@@ -1497,7 +1499,8 @@ def drukuj_etykiety(request):
             nazwa, barcode=barcodes, data_dostawy=data_przyjecia)
         call(['/etc/init.d/cups start'], shell=True)
         # call(['ls /etc/cups/'], shell=True)
-        call(['lp -o Resolution=300dpi -o PageSize=w144h216 tmp/etykieta_podwojna.pdf'], shell=True)
+        call(['lp -o Resolution=203dpi -o PageSize=w144h216 tmp/etykieta_podwojna.pdf'], shell=True) # Zebra ZT410 10-07-2020
+        #call(['lp -o Resolution=300dpi -o PageSize=w144h216 tmp/etykieta_podwojna.pdf'], shell=True) # Zebra ZT230 10-07-2020 Podmiana drukarek wzorniki->magazyn
         return HttpResponse('Wydrukowano {0} etykiet {1}'.format(ilosc, tkanina.nazwa))
     else:
         return HttpResponse('Niepoprawne dane')

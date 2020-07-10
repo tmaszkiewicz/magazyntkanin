@@ -1449,7 +1449,8 @@ def Bezposredni_wydruk(Rolka):
     #call(['lp tmp/etykieta.pdf'], shell=True)
 
     #call(['lp tmp/etykieta_podwojna.pdf'], shell=True) #### 06.05.2019
-    call(['lp -o Resolution=300dpi -o PageSize=w144h216 tmp/etykieta_podwojna.pdf'], shell=True) #06.05.2019
+    #call(['lp -o Resolution=300dpi -o PageSize=w144h216 tmp/etykieta_podwojna.pdf'], shell=True) #06.05.2019
+    call(['lp -o Resolution=203dpi -o PageSize=w144h216 tmp/etykieta_podwojna.pdf'], shell=True) #10-07-2020 Zaminan ZT410
     call(['lp -djan-pr-mm01 -o portrait -o fit-to-page -o media=A5 tmp/obiegowka.pdf'], shell=True)
 
 def odczytaj_csv(plik_path=os.path.join('.', 'dzienniki')):
