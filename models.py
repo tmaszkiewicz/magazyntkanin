@@ -127,7 +127,7 @@ class Rolka(models.Model):
                          self.lot,
                          str(self.dlugosc))
         # return str('/').join(return_string)
-        return str(self.pk) + " / " + str(self.tkanina)
+        return str(self.pk) + " / " + str(self.tkanina) + " / " + str(self.dostawca)
 
 
 class Rolka_usunieta(models.Model):
@@ -443,13 +443,16 @@ class FgkComment(models.Model):
         job_partqnt = models.CharField(max_length=255, blank=True)
         job_cr_date = models.CharField(max_length=255, blank=True)
         job_mrknotchqty = models.CharField(max_length=255, blank=True)
-        job_cutt= models.CharField(max_length=255, blank=True)
+       	job_cutt= models.CharField(max_length=255, blank=True)
+        def __str__(self):
+                return "{0} {1}".format(self.job_name, self.job_comm)
         
         
 class FgkLine(models.Model):
         job_name  = models.CharField(max_length=255, blank=True)
         part  = models.CharField(max_length=255, blank=True)
         count = models.CharField(max_length=255, blank=True)
+        box = models.CharField(max_length=255, blank=True)
         
         class Meta:
             verbose_name_plural = 'FgkLines'

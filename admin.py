@@ -15,7 +15,7 @@ class WpisySzwalniaAdmin(admin.ModelAdmin):
     search_fields = ['dziennik__nr', 'tkanina__nazwa', 'TA']
 
 class RolkaAdmin(admin.ModelAdmin):
-	search_fields = ['pk', 'barcode', 'tkanina__nazwa', 'dostawca']
+	search_fields = ['pk', 'barcode', 'tkanina__nazwa', 'dostawca', 'nr_zamowienia']
 class Rolka_usunietaAdmin(admin.ModelAdmin):
 	search_fields = ['pk', 'barcode']
 

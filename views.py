@@ -564,7 +564,7 @@ def magazyn_inwentura_grupowana_v2(request):
                     inw3.append(inw2)
 
             elif int(status)==4:
-                typ_inwentury="INWENTURA_20122019"
+                typ_inwentury="INWENTURA_09072020"
                 inw = Log.objects.filter(index_tkaniny__startswith=index_tkaniny,typ=typ_inwentury).order_by('rolka_id','-timestamp').distinct('rolka_id')
     
         else:
@@ -592,7 +592,7 @@ def magazyn_inwentura_grupowana_v2(request):
                     inw3.append(inw2)
 
             elif int(status)==4:
-                typ_inwentury="INWENTURA_20122019"
+                typ_inwentury="INWENTURA_09072020"
                 inw = Log.objects.filter(typ=typ_inwentury).order_by('rolka_id','-timestamp').distinct('rolka_id')
 
         ind_old=0
@@ -767,9 +767,9 @@ def inw_do_usuniecia(request):
     #2 ) http://jan-svr-docker:8000/magazyn/inwentura_usun_finalnie/ (views.inw_usuwamy) 
     #3 ) http://jan-svr-docker:8000/magazyn/archiwizuj_inwenture/ (views.archiwizuj_inwenture)
     rolki= []
-    dd= datetime.strptime("2019-12-20 00:00:01.78200", "%Y-%m-%d %H:%M:%S.%f").date()
-    for i in Rolka.objects.all():   # DLA PELNEJ INWENTURY
-    #for i in Rolka.objects.filter(status=1):   # zmiana 20.01.2020 -> DLA INWENTURY MAGAZYNAMI - 0 MAG. 1 WYDANE, 2 - ZAKONCZONE, potem już usun finalnie!
+    dd= datetime.strptime("2020-07-09 00:00:01.78200", "%Y-%m-%d %H:%M:%S.%f").date()
+    #for i in Rolka.objects.all():   # DLA PELNEJ INWENTURY
+    for i in Rolka.objects.filter(status=1):   # zmiana 20.01.2020 -> DLA INWENTURY MAGAZYNAMI - 0 MAG. 1 WYDANE, 2 - ZAKONCZONE, potem już usun finalnie!
 
     ##for i in Rolka.objects.filter(tkanina__index_sap=12641):  # DLA INWENTURY TKANINY
         
@@ -799,7 +799,7 @@ def inw_usuwamy(request):
     return HttpResponse("OK")
 def archiwizuj_inwenture(request):
     for i in Log.objects.filter(typ='INWENTURA'):
-        i.typ='INWENTURA_20122019'
+        i.typ='INWENTURA_04102020'
         i.save()
     #for i in Log.objects.filter(typ='INWENTURA_22122019'):
     #    i.typ='INWENTURA_22122018'
@@ -973,6 +973,8 @@ def test_statystki(rolka):
         Q(typ="INWENTURA_06022019") |
         Q(typ="INWENTURA_26072019") |
         Q(typ="INWENTURA_20122019") |
+        Q(typ="INWENTURA_04102020") |
+        Q(typ="INWENTURA_09072020") |
         Q(typ="WPIS_MAGAZYN_ZWROT")).order_by('-timestamp')
 
     log_fgk = log.filter(
@@ -2275,6 +2277,7 @@ def edytuj(request):
     #zamowienia = request.POST['zamowienie'] #< ---- na to
     data_direct = request.POST['data_dostawy'].replace('/', '-')
     dostawca = request.POST['dostawca']
+    print(dostawca)
     try:
         dlugosc = float(dlugosc.replace(',', '.'))
     except ValueError as e:
@@ -2305,6 +2308,7 @@ def edytuj(request):
             rolka.szerokosc = szerokosc
             rolka.nr_zamowienia = zamowienia
             rolka.dostawca = dostawca # 21052019 TM
+            print(rolka.dostawca,"-----")
             rolka.save()
             return HttpResponse('Zapisano!')
         except Exception as e:
@@ -2812,4 +2816,16 @@ def fgk_line(request, *args, **kwargs):
     job_name=kwargs['job_name']
     linie=FgkLine.objects.filter(job_name=job_name)
     context['linie']=linie
+    return render(request,url,context)
+def usun_odpady(request, *args, **kwargs):
+    context = {
+    }
+    url='magazyntkanin/usun_odpady.html'
+    odpad=Rolka.objects.filter(dlugosc__lt=0.3, zakonczona=False)
+    for i in odpad:
+    	i.zakonczona=True
+    	i.save()
+    context['odpad'] = odpad
+
+	
     return render(request,url,context)

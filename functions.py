@@ -1406,10 +1406,10 @@ def generuj_etykiete_tkaniny_podwojna(nazwa_tkaniny, barcode=[], L='', R='', dat
         d.add(qr_code)
         #renderPDF.draw(d, c, (2.8+l_shift) * cm, 0 * cm)
         c.setFont('Courier-Bold', size=10)
-        c.drawString((0.5+l_shift) * cm, 2.3 * cm, barcode[i])
-        c.drawString((5.7+l_shift) * cm, 2.3 * cm, barcode[i])
+        c.drawString((1.1+l_shift) * cm, 0.4 * cm, barcode[i]) # 0.5 , 2.3
+        c.drawString((5.7+l_shift) * cm, 0.4 * cm, barcode[i]) 
         #c.drawString((4.9+l_shift) * cm, 1,5 * cm, barcode[i])
-        renderPDF.draw(d, c, (0.0+l_shift) * cm, 0.4 * cm)
+        renderPDF.draw(d, c, (0.7+l_shift) * cm, 0.4 * cm)#0.0
         renderPDF.draw(d, c, (5.2+l_shift) * cm, 0.4 * cm)
 
         #eanbc_code = eanbc.Ean8BarcodeWidget(barcode[i])

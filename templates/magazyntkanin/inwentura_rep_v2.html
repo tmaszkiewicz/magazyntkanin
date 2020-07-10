@@ -10,7 +10,7 @@
 
     </div>
     <div class="col-xs-8 col-sm-8 col-md-8 col-lg-8">
-        <form action="{% url 'magazyntkanin:inwentura_g' %}" method="GET" role="form">
+        <form action="{% url 'magazyntkanin:inwentura_g2' %}" method="GET" role="form">
             <div class="form-group col-xs-4 col-sm-4 col-md-4 col-lg-4">
                 <label for="tkanina" style="margin-top:10px;">Index tkaniny (obsluga prefiksu)</label>
                 <input type="text" class="form-control" id="" placeholder="" name="index_tkaniny">                
@@ -29,7 +29,16 @@
                     <option value="3">ZLICZANIE OKRESOWE</option>
                   <!--  <option value="4">INWENTURA_22122018</option>
                     <option value="5">INWENTURA_06022019</option>-->
-                    <option value="4">INWENTURA_20122019</option>
+                    <option value="4">INWENTURA_09072020</option>
+                 </select>                 
+            </div>
+            <div class="form-group col-xs-4 col-sm-4 col-md-4 col-lg-4">
+                <label for="lokalizacja">Lokalizacja</label>                 
+                <select name="lokalizacja" class="form-control">
+                    <option value="">-----</option>
+                    <option value="0">MAGAZYN</option>
+                    <option value="1">WYDANA</option>
+                    <option value="2">WSZYSTKIE</option>
                  </select>                 
             </div>
             <div class="row">
@@ -51,6 +60,9 @@
 
 
         <h2>Znaleziono {{wpisy.count}} wpisów:</h2>        
+
+		
+
         <table class="table table-hover" id="t1">
             <thead>
                 <tr>
@@ -105,7 +117,20 @@
 			{%if status == '3' %}							
 				<td><input class="form-control" type="checkbox" name={{i.rolka_id}} id={{i.rolka_id}}></td>
 			{% endif %}
-	<!--		<td> {{i.typ}}</td>  
+
+			<td>
+			{% if i.lokalizacja == 0 %}
+			Magazyn
+			{% elif i.lokalizacja == 1 %}
+			Wydana
+			{% elif i.lokalizacja == 2 %}
+			Zakonczona
+			{% endif %}
+
+
+			</td>
+			
+		<!--	<td> {{i.typ}}</td>  
 
 			<td> {{i.dlPerIndeks}}</td>			
 			<td> {{i.dlPerIndeks_inw}}</td>			-->

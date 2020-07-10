@@ -1,52 +1,63 @@
 {% extends "magazyntkanin/base.html" %}
-{% load bootstrap3 %}
-
-{% block css %}
-        <style type="text/css">
-                th {
-                        text-align: center;
-                        font-size: 18px;
-                }
-        </style>
-{% endblock css %}
 
 
 {% block body %}
+<div class="row" style="margin-top: 80px;">
+    <div class="col-xs-2 col-sm-2 col-md-2 col-lg-2">
 
-<div class="container">
-        
-        <div class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
-        </div>
-        
-        <div class="col-xs-4 col-sm-4 col-md-4 col-lg-4">               
-                <center>
-                <h3>DODANIE/EDYCJA TKANINY</h3>
-                
-                <a href="http://jan-svr-docker:8000/magazyn/tkaniny/new/"><button type="button" class="btn btn-danger">DODAJ TKANINE</button></a>
-                </center>
-                <table class="table table-hover">
-                        <thead>
-                                <tr>
-                                        <th>Tkanina</th>
-                                        <th>Indeks</th>
-                                </tr>
-                        </thead>
-                        <tbody>
-                                {% for a in tkanina %}
-                                <tr>
-                                        <td>
-                                        
-                                        <a href="{{a.pk}}">{{ a.nazwa }}</a>
-                                        </td>
-                                        <td> {{ a.index_sap }}</td>
-                                </tr>
-                                {% endfor %}
-                        </tbody>
-        </div>        
-        <div class="col-xs-4 col-sm-4 col-md-4 col-lg-4">               
-        </div>
-        
+    </div>
+    <div class="col-xs-8 col-sm-8 col-md-8 col-lg-8">
+        <form action="{% url 'magazyntkanin:fgk' %}" method="GET" role="form">
+            <div class="form-group col-xs-3 col-sm-3 col-md-3 col-lg-3">
+                <label for="karta" style="margin-top:10px;">Karta_FGK</label>
+                <input type="text" class="form-control" id="" placeholder="" name="job_name">                
+                <label for="cutter" style="margin-top:10px;">Cutter</label>
+                <input type="text" class="form-control" id="" placeholder="" name="job_cutt">
+                <label for="data" style="margin-top:10px;">Data</label>
+                <input type="text" class="form-control" id="" placeholder="" name="job_cr_date">
+            </div>
+            <div class="row">
+                <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                    <button type="submit" class="btn btn-primary">Wyszukaj</button>                
+                </div>
+            </div>            
+        </form>        
+    </div>
+    
 </div>
+<div class="row" style="margin-top: 80px;">
+    <div class="col-xs-1 col-sm-1 col-md-1 col-lg-1" style="margin-top: 50px;">
+    </div>
+    <div class="col-xs-10 col-sm-10 col-md-10 col-lg-10">
+        <table class="table table-hover">
+            <thead>
+                <tr>
+                    <th>Job_name</th>
+                    <th>Komentarz</th>
+                    <th>-</th>
+                </tr>
+            </thead>
+            <tbody>
+	
+                {% for karta in karty %}                
+                <tr>
+                    <td>
+                        {{ karta.job_name }}
+		
+                       <a href="{% url 'magazyntkanin:fgk_line' job_name=karta.job_name %}"><i class="glyphicon glyphicon-list-alt"></i></a>
+                    </td>
+                    <td>
+			{{ karta.job_comm }}
+                    </td>
+                    <td>
+			{{ karta.job_cr_date }}
+                    </td>
 
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+   </form>
+</div>
 {% endblock body %}
-
