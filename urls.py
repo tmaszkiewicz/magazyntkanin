@@ -124,4 +124,5 @@ urlpatterns = [
     url(r'^magazyn/fgk/$', views.fgk, name='fgk'),
     url(r'^magazyn/fgk_line/(?P<job_name>.+)/$', views.fgk_line, name='fgk_line'),
     url(r'^magazyn/usun_odpady/$', views.usun_odpady, name='usun_odpady'),
+    url(r'^magazyn/przywroc/$', views.przywroc_rolke, name='przywroc_rolke'),
 ]

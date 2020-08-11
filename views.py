@@ -2832,3 +2832,20 @@ def usun_odpady(request, *args, **kwargs):
 
 	
     return render(request,url,context)
+def przywroc_rolke(request,*args,**kwargs):
+    context = {
+    }
+    if request.GET:
+       NrRolki=request.GET['rolka']
+       context['NrRolki']=NrRolki
+       rolka=Rolka_usunieta.objects.get(pk=NrRolki)
+       tkanina=rolka.tkanina
+       try:
+          Rolka.objects.get_or_create(pk=NrRolki,tkanina=tkanina,status=rolka.status,data_dostawy=rolka.data_dostawy,nr_rolki=rolka.nr_rolki,dlugosc=rolka.dlugosc,szerokosc=rolka.szerokosc,dlugosc_poczatkowa=rolka.dlugosc_poczatkowa,barcode=rolka.barcode,nr_zamowienia=rolka.nr_zamowienia,zakonczona=False,wydrukowana=False,do_usuniecia=False)
+       except:
+          print("Nie odnaleziono rolki lub sa takie dwie")
+       context['rolka']=rolka
+
+
+    url='magazyntkanin/przywroc_rolke.html'
+    return render(request,url,context)
