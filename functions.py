@@ -546,6 +546,81 @@ def generuj_xls_porownanie_sap(inw):
 
     #wb.save('inw.xlsx')
 
+def generuj_xls_biezacy(inw):
+    import datetime
+    from openpyxl import Workbook
+    wb = Workbook()
+    ws = wb.active
+    ws.title = "INW"
+    row=1
+    cell = "A" + str(row)
+    ws[cell]="INWENTURA"
+    cell = "C" + str(row)
+    ws[cell]=datetime.datetime.now().strftime("%Y-%m-%d")
+    row=2
+    cell = "A" + str(row)
+    ws[cell]="Nazwa"
+    cell = "B" + str(row)
+    ws[cell]="Index"
+    cell = "C" + str(row)
+    ws[cell]="dlugosc-inw"
+    cell = "D" + str(row)
+    ws[cell]="Ilosc"
+    row=3
+    licznik=1
+    for i in inw:
+        if  i['isPrinted']:
+            cell = "A" + str(row)
+            try:
+                ws[cell] = i['nazwa_tkaniny']
+            except:
+                None
+            cell = "B" + str(row)
+            try:
+                ws[cell] = i['index_tkaniny']
+            except:
+                None
+            #cell = "C" + str(row)
+            #try:
+            #    ws[cell] = i['rolka_id']
+            #except:
+            #    None
+            #cell = "D" + str(row)
+            #try:
+            #    ws[cell] = i['dlugosc_rolki']
+            #except:
+            #    None
+            #cell = "E" + str(row)
+            #try:
+            #    ws[cell] = i['dlugosc_elementu']
+            #except:
+            #    None
+            
+            #cell = "C" + str(row)
+            #try:
+            #    ws[cell] = i['dlPerIndeks']
+            #except:
+            #    None
+            cell = "C" + str(row)
+            try:
+                ws[cell] = i['dlPerIndeks_inw']
+            except:
+                None
+            cell = "D" + str(row)   
+            try:
+                ws[cell] = i['ile_rolek_inw']
+            except:
+                None
+            row+=1
+
+            print(licznik)
+            licznik=1
+    try:
+        os.remove('tmp/inwcur.xlsx')
+    except:
+        print("Nie ma pliku do usuniecia")
+    wb.save('tmp/inwcur.xlsx')
+    os.chmod('tmp/inwcur.xlsx',0o777)
 def generuj_raport_inwentury3(inw):
     
     from reportlab.platypus import Table, TableStyle, Paragraph, SimpleDocTemplate
@@ -571,8 +646,8 @@ def generuj_raport_inwentury3(inw):
     stylesheet=getSampleStyleSheet()
     styleN = stylesheet['Normal']
     styleN.fontSize = 17
-
-    p = Paragraph(u'<para align="center"><b>RAPORT INWENTARYZACJI</b></para>', styleN)
+    d=datetime.now().strftime("%Y-%m-%d")  ### -%H-%M")
+    p = Paragraph(u'<para align="center"><b>RAPORT INWENTARYZACJI Z DNIA {0}</b></para>'.format(d), styleN)
     w,h = p.wrap(width, 200)
     p.drawOn(c, 5, height -50)
 
@@ -619,7 +694,8 @@ def generuj_raport_inwentury3(inw):
             ilosc_rolek+=1
             r_tmp+=1
 	#	24.07.2019 - tab problem
-	
+	# Ggdzies tu zaczyna sie problem z INWENTURA_12092020 12-09-2020 Zle naliczanie rolek
+        # Problem w tym, ze dobrze dziala dla pelnej inw.
 	
             try:
                 if inw[indeks]['isPrinted']:

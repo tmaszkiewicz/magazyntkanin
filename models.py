@@ -424,7 +424,7 @@ class Log(models.Model):
         verbose_name_plural = 'Logi'
 
     def __str__(self):
-        return "{0} / {1} / {2}".format(self.rolka_id, self.typ, self.timestamp.strftime("%d-%m-%Y %H:%M:%S"))
+        return "{0} / {1} / {2}/ {3}/".format(self.rolka_id,self.index_tkaniny, self.typ, self.timestamp.strftime("%d-%m-%Y %H:%M:%S"))
 
 
 class TkaninyXlsx(models.Model):

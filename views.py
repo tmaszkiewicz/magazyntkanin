@@ -13,14 +13,13 @@ import re
 from datetime import datetime
 import json
 from subprocess import call
-
 # Modele
 from .models import *
 
 # Formy
 from .models import RolkaForm
 from .models import TkaninaForm
-
+from .forms import CzyscForm
 #Utils
 
 def logowanie_bledu(request, error):
@@ -129,6 +128,14 @@ def wz_xls(request):
     response = HttpResponse(open(filename, 'rb').read())
     response['Content-Type'] = 'mimetype/submimetype'
     response['Content-Disposition'] = 'attachment; filename=wz.xlsx'
+    #response = HttpResponse(output,content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+    #response['Content-Disposition'] = 'attachment; filename=%s' % filename
+    return response
+def rap_xls(request):
+    filename = 'tmp/inwcur.xlsx'
+    response = HttpResponse(open(filename, 'rb').read())
+    response['Content-Type'] = 'mimetype/submimetype'
+    response['Content-Disposition'] = 'attachment; filename=inwcur.xlsx'
     #response = HttpResponse(output,content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
     #response['Content-Disposition'] = 'attachment; filename=%s' % filename
     return response
@@ -325,6 +332,7 @@ def magazyn_inwentura_grupowana(request):
                 inw_ = Log.objects.filter(index_tkaniny__startswith=index_tkaniny).order_by('rolka_id','-timestamp').distinct('rolka_id')
 
                 inw = list(filter(lambda x: do_wywalenia(x.rolka_id),inw_))
+                print(len(inw))
 
                 typ_inwentury="INWENTURA"
             elif int(status)==3:
@@ -352,13 +360,14 @@ def magazyn_inwentura_grupowana(request):
             #    typ_inwentury="INWENTURA_06022019"
             #    inw = Log.objects.filter(index_tkaniny__startswith=index_tkaniny,typ=typ_inwentury).order_by('rolka_id','-timestamp').distinct('rolka_id')
             elif int(status)==4:
-                typ_inwentury="INWENTURA_20122019"
+                typ_inwentury="INWENTURA_12092020"
                 inw = Log.objects.filter(index_tkaniny__startswith=index_tkaniny,typ=typ_inwentury).order_by('rolka_id','-timestamp').distinct('rolka_id')
     
         else:
             if (status!='' and  int(status)<2) or status=='':
                 typ_inwentury="INWENTURA"
                 inw = Log.objects.order_by('rolka_id','-timestamp').distinct('rolka_id')
+                #inw = Log.objects.filter(typ=typ_inwentury).order_by('rolka_id','-timestamp').distinct('rolka_id')#17092020 w razie czego przywrocic linie wyzej
             elif int(status)==2:
 
                 inw_ = Log.objects.filter(index_tkaniny__startswith=index_tkaniny).order_by('rolka_id','-timestamp').distinct('rolka_id')
@@ -388,7 +397,7 @@ def magazyn_inwentura_grupowana(request):
             #    typ_inwentury="INWENTURA_06022019"
             #    inw = Log.objects.filter(typ=typ_inwentury).order_by('rolka_id','-timestamp').distinct('rolka_id')
             elif int(status)==4:
-                typ_inwentury="INWENTURA_20122019"
+                typ_inwentury="INWENTURA_12092020"
                 inw = Log.objects.filter(typ=typ_inwentury).order_by('rolka_id','-timestamp').distinct('rolka_id')
 
         ind_old=0
@@ -504,6 +513,7 @@ def magazyn_inwentura_grupowana(request):
         functions.generuj_raport_inwentury3(inw3)
         functions.generuj_raport_xls(inw3)
         functions.generuj_xls_porownanie_sap(inw3)
+        functions.generuj_xls_biezacy(inw3)
 
         context['inw'] = inw3
         context['status'] = status
@@ -527,6 +537,8 @@ def magazyn_inwentura_grupowana_v2(request):
         	filtr_lokalizacja=r'^1$' #Wydana
         elif lokalizacja=="2":
         	filtr_lokalizacja=r'^(0|1)$' # Zakonczona Docelowo wszystkie
+        elif lokalizacja=="3":
+        	filtr_lokalizacja=r'^(0|1|2)$' #Zakonczona - WSZYSTKIE LACZNIE Z ZAMKNIETYMI 17092020
         elif lokalizacja=="":
         	filtr_lokalizacja=r'^(0|1)$' # Domyslnie niezamkniete
         print(filtr_lokalizacja)
@@ -564,19 +576,22 @@ def magazyn_inwentura_grupowana_v2(request):
                     inw3.append(inw2)
 
             elif int(status)==4:
-                typ_inwentury="INWENTURA_09072020"
+                typ_inwentury="INWENTURA_12092020" # 12092020 INWE
                 inw = Log.objects.filter(index_tkaniny__startswith=index_tkaniny,typ=typ_inwentury).order_by('rolka_id','-timestamp').distinct('rolka_id')
     
         else:
             if (status!='' and  int(status)<2) or status=='':
                 typ_inwentury="INWENTURA"
+                #inw = Log.objects.filter(typ=typ_inwentury).order_by('rolka_id','-timestamp').distinct('rolka_id') #### 12092020 Dodany filtr na INWENTURA. DLACZEGO NIE BYLO????? 12092020
                 inw = Log.objects.order_by('rolka_id','-timestamp').distinct('rolka_id')
+                print(len(inw))
             elif int(status)==2:
 
                 inw_ = Log.objects.filter(index_tkaniny__startswith=index_tkaniny).order_by('rolka_id','-timestamp').distinct('rolka_id')
 
                 inw = list(filter(lambda x: do_wywalenia(x.rolka_id),inw_))
                 typ_inwentury="INWENTURA"
+                print(len(inw),"-------")
             elif int(status)==3:
                 typ_inwentury="ZLICZANIE"
                 inw3 = []
@@ -592,7 +607,7 @@ def magazyn_inwentura_grupowana_v2(request):
                     inw3.append(inw2)
 
             elif int(status)==4:
-                typ_inwentury="INWENTURA_09072020"
+                typ_inwentury="INWENTURA_12092020"
                 inw = Log.objects.filter(typ=typ_inwentury).order_by('rolka_id','-timestamp').distinct('rolka_id')
 
         ind_old=0
@@ -621,6 +636,7 @@ def magazyn_inwentura_grupowana_v2(request):
                     #print(Rolka.objects.filter(tkanina__index_sap=12641),"23333")
                     inw3.append(inw2)
         # GDZIES TU SIE NIE TWORZY inw3, generalnnie nie wpada w sytuacji brak statusu i i nie ma wtedy inw3, jak dodać, oto zadanie na poniedzialek!!!!!!!
+        print("------",len(inw3))
         inw3 = sorted(inw3, key=itemgetter('index_tkaniny'))
         
         dlPerIndeks = 0
@@ -700,6 +716,7 @@ def magazyn_inwentura_grupowana_v2(request):
         functions.generuj_raport_inwentury3(inw3)
         functions.generuj_raport_xls(inw3)
         functions.generuj_xls_porownanie_sap(inw3)
+        functions.generuj_xls_biezacy(inw3)
 
         context['inw'] = inw3
         context['status'] = status
@@ -767,7 +784,7 @@ def inw_do_usuniecia(request):
     #2 ) http://jan-svr-docker:8000/magazyn/inwentura_usun_finalnie/ (views.inw_usuwamy) 
     #3 ) http://jan-svr-docker:8000/magazyn/archiwizuj_inwenture/ (views.archiwizuj_inwenture)
     rolki= []
-    dd= datetime.strptime("2020-07-09 00:00:01.78200", "%Y-%m-%d %H:%M:%S.%f").date()
+    dd= datetime.strptime("2020-09-12 00:00:01.78200", "%Y-%m-%d %H:%M:%S.%f").date()
     #for i in Rolka.objects.all():   # DLA PELNEJ INWENTURY
     for i in Rolka.objects.filter(status=1):   # zmiana 20.01.2020 -> DLA INWENTURY MAGAZYNAMI - 0 MAG. 1 WYDANE, 2 - ZAKONCZONE, potem już usun finalnie!
 
@@ -799,7 +816,7 @@ def inw_usuwamy(request):
     return HttpResponse("OK")
 def archiwizuj_inwenture(request):
     for i in Log.objects.filter(typ='INWENTURA'):
-        i.typ='INWENTURA_04102020'
+        i.typ='INWENTURA_12092020'
         i.save()
     #for i in Log.objects.filter(typ='INWENTURA_22122019'):
     #    i.typ='INWENTURA_22122018'
@@ -1506,7 +1523,6 @@ def drukuj_etykiety(request):
         return HttpResponse('Niepoprawne dane')
 
 def drukuj_etykiety_test(request):
-    print("ssss")
     if request.method == 'GET':
         #data_przyjecia = request.GET['data-przyjecia']
         data_przyjecia = '2018-11-21'
@@ -2848,4 +2864,62 @@ def przywroc_rolke(request,*args,**kwargs):
 
 
     url='magazyntkanin/przywroc_rolke.html'
+    return render(request,url,context)
+#ZAMKNIECIE INWENTURY
+def inw_close(request,*args,**kwargs):
+    context = {
+    }
+    url='magazyntkanin/inw_close.html'
+    return render(request, url, context)
+def backup(request,*args,**kwargs):
+    import paramiko
+    #command = "sh /home/itadmin/Cutter_root/scripts/backup_befor_inv.sh &"
+    command = "exec /usr/local/bin/docker-compose exec web ls"
+
+    ssh = paramiko.SSHClient()
+    ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+    ssh.connect('192.168.41.7', port=22, username='itadmin', password='J@nipo1')
+    stdin, stdout, stderr = ssh.exec_command(command)
+    lines = stderr.readlines()
+    print(lines)
+    return  HttpResponse("Wykonaj /home/itadmin/Cutter_root/scripts/backup_befor_inv.sh")
+def set_inw_name(request,*args,**kwargs):
+    context = {
+    }
+    url='magazyntkanin/set_inw_name.html'
+    context['Form']=InwenturaForm
+    if request.method == 'POST':
+        Inw = Inwentura.objects.create()
+        form = InwenturaForm(request.POST)
+        if form.is_valid():         
+            print(form.cleaned_data['nazwa'])
+            Inw.nazwa=form.cleaned_data['nazwa']
+            Inw.data_inw=form.cleaned_data['data_inw']
+            form.save()              
+    return render(request,url,context)
+def inw_usun_smieci(request,*args,**kwargs):
+    context = {
+    }
+    url='magazyntkanin/inw_usun_smieci.html'
+    if request.method == 'POST':
+        form = CzyscForm(request.POST)
+        if form.is_valid():
+            inwentury_del=form.cleaned_data['inwentury_del']
+            czysc_do_usuniecia=form.cleaned_data['czysc_do_usuniecia']
+            if inwentury_del:
+                context['usuniete_OLD']=Log.objects.filter(typ='INWENTURA_OLD')
+                Log.objects.filter(typ='INWENTURA_OLD').delete()
+                for i in Log.objects.filter(typ='INWENTURA'):
+                    print(i.typ)
+                    i.typ="INWENTURA_OLD"
+                    i.save()
+                context['usuniete']=Log.objects.filter(typ='INWENTURA_OLD')
+            if czysc_do_usuniecia:
+                context['do_usuniecia'] = Rolka.objects.filter(do_usuniecia=True)
+                for j in  Rolka.objects.filter(do_usuniecia=True):
+                    j.do_usuniecia=False
+                    j.save()
+
+    else:
+        form = CzyscForm()
     return render(request,url,context)
