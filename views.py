@@ -784,7 +784,7 @@ def inw_do_usuniecia(request):
     #2 ) http://jan-svr-docker:8000/magazyn/inwentura_usun_finalnie/ (views.inw_usuwamy) 
     #3 ) http://jan-svr-docker:8000/magazyn/archiwizuj_inwenture/ (views.archiwizuj_inwenture)
     rolki= []
-    dd= datetime.strptime("2020-09-12 00:00:01.78200", "%Y-%m-%d %H:%M:%S.%f").date()
+    dd= datetime.strptime("2020-11-07 00:00:01.78200", "%Y-%m-%d %H:%M:%S.%f").date()
     #for i in Rolka.objects.all():   # DLA PELNEJ INWENTURY
     for i in Rolka.objects.filter(status=1):   # zmiana 20.01.2020 -> DLA INWENTURY MAGAZYNAMI - 0 MAG. 1 WYDANE, 2 - ZAKONCZONE, potem już usun finalnie!
 
