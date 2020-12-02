@@ -576,7 +576,7 @@ def magazyn_inwentura_grupowana_v2(request):
                     inw3.append(inw2)
 
             elif int(status)==4:
-                typ_inwentury="INWENTURA_12092020" # 12092020 INWE
+                typ_inwentury="INWENTURA_07112020" # 12092020 INWE
                 inw = Log.objects.filter(index_tkaniny__startswith=index_tkaniny,typ=typ_inwentury).order_by('rolka_id','-timestamp').distinct('rolka_id')
     
         else:
@@ -607,7 +607,7 @@ def magazyn_inwentura_grupowana_v2(request):
                     inw3.append(inw2)
 
             elif int(status)==4:
-                typ_inwentury="INWENTURA_12092020"
+                typ_inwentury="INWENTURA_07112020"
                 inw = Log.objects.filter(typ=typ_inwentury).order_by('rolka_id','-timestamp').distinct('rolka_id')
 
         ind_old=0
@@ -816,7 +816,7 @@ def inw_usuwamy(request):
     return HttpResponse("OK")
 def archiwizuj_inwenture(request):
     for i in Log.objects.filter(typ='INWENTURA'):
-        i.typ='INWENTURA_12092020'
+        i.typ='INWENTURA_07112020'
         i.save()
     #for i in Log.objects.filter(typ='INWENTURA_22122019'):
     #    i.typ='INWENTURA_22122018'
@@ -992,6 +992,7 @@ def test_statystki(rolka):
         Q(typ="INWENTURA_20122019") |
         Q(typ="INWENTURA_04102020") |
         Q(typ="INWENTURA_09072020") |
+        Q(typ="INWENTURA_07112020") |
         Q(typ="WPIS_MAGAZYN_ZWROT")).order_by('-timestamp')
 
     log_fgk = log.filter(
@@ -2923,3 +2924,8 @@ def inw_usun_smieci(request,*args,**kwargs):
     else:
         form = CzyscForm()
     return render(request,url,context)
+def archiwizuj_inwenture_web(request):
+    for i in Log.objects.filter(typ='INWENTURA'):
+        i.typ='INWENTURA_07112020'
+        i.save()
+    return HttpResponse("OK")
