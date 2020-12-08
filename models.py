@@ -1,6 +1,7 @@
 from django.db import models
 from django.db.models import Sum
 from django import forms
+from datetime import datetime
 from.validators import validate_file_extension
 # Create your models here.
 
@@ -459,8 +460,21 @@ class FgkLine(models.Model):
 
         def __str__(self):
             return "{0} / {1} / {2}".format(self.job_name, self.part, self.count)
+class Inwentura(models.Model):
+        nazwa = models.CharField(max_length=30, blank=True)
+        data = models.DateTimeField(auto_now_add=True)
+        data_inw = models.DateTimeField(default=datetime.now(), blank=True, null=True)
+        class Meta:
+            verbose_name_plural = "Inwentur(y)"
+            verbose_name = "Inwentura"
+        def __str__(self):
+            return "{0} / {1}".format(self.nazwa, self.data)
 
 # -------------- FORMS --------------
+class InwenturaForm(forms.ModelForm):
+    class Meta:
+        model = Inwentura
+        fields = ('__all__')
 class RolkaForm(forms.ModelForm):
     class Meta:
         model = Rolka
@@ -527,4 +541,3 @@ class ErrorLog(models.Model):
 
     def __str__(self):
         return "{0} / {1}".format(self.data, self.error)
-

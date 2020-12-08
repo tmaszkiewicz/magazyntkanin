@@ -2866,7 +2866,11 @@ def przywroc_rolke(request,*args,**kwargs):
 
     url='magazyntkanin/przywroc_rolke.html'
     return render(request,url,context)
-#ZAMKNIECIE INWENTURY
+#
+#
+#ZAMKNIECIE INWENTURY BEGIN
+#
+#
 def inw_close(request,*args,**kwargs):
     context = {
     }
@@ -2924,8 +2928,26 @@ def inw_usun_smieci(request,*args,**kwargs):
     else:
         form = CzyscForm()
     return render(request,url,context)
-def archiwizuj_inwenture_web(request):
-    for i in Log.objects.filter(typ='INWENTURA'):
-        i.typ='INWENTURA_07112020'
-        i.save()
-    return HttpResponse("OK")
+def archiwizuj_inwenture_web(request,*args,**kwargs):
+    context = {
+    }
+    url='magazyntkanin/archiwizuj_inwenture_web.html'
+
+    Inw=Inwentura.objects.all()
+    print(Inw)
+    context['Inwentura']=Inw
+    if request.method == 'POST':
+        inwpk=request.POST['Inwentura']
+        Inw=Inwentura.objects.get(pk=inwpk)        
+        liczba=Log.objects.filter(typ='INWENTURA').count()
+        context['liczba']=liczba
+        context['nazwa']=Inw.nazwa
+
+        for i in Log.objects.filter(typ='INWENTURA'):
+            i.typ=Inw.nazwa
+            i.save()
+    return render(request,url,context)
+#
+# ZAMKNIECIE INWENTURY END
+#
+
